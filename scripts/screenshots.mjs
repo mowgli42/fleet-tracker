@@ -67,9 +67,18 @@ async function main() {
   });
   const page = await context.newPage();
 
+  // Load root once so CSS loads; then use client-side navigation (click links) so we
+  // never do a full reload to /fleet etc. (preview serves those with relative asset paths that break).
+  await page.goto(BASE + '/', { waitUntil: 'networkidle' });
+  await page.waitForSelector('.app-shell', { state: 'visible' });
+  await page.waitForTimeout(500);
+
   for (const { path: route, name } of pages) {
-    await page.goto(BASE + route, { waitUntil: 'networkidle' });
-    await page.waitForTimeout(400);
+    if (route !== '/') {
+      await page.click(`a[href="${route}"]`);
+      await page.waitForURL((url) => url.pathname === route);
+      await page.waitForTimeout(400);
+    }
     const outPath = path.join(SCREENSHOTS_DIR, `${name}.png`);
     await page.screenshot({ path: outPath, type: 'png' });
     console.log('Saved', outPath);
