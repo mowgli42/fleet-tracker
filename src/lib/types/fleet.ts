@@ -15,6 +15,8 @@ export type JobStatus =
 
 export type PartOrderStatus = 'ordered' | 'shipped' | 'received';
 
+export type VehicleRole = 'primary' | 'backup' | 'pool';
+
 export interface Vehicle {
   id: string;
   name: string;
@@ -23,6 +25,10 @@ export interface Vehicle {
   nextService?: string;
   odometer?: number;
   driver?: string;
+  /** For TOC prioritization: impact on availability */
+  role?: VehicleRole;
+  /** Odometer at last completed service (for MTBF/trends) */
+  odometerAtLastService?: number;
 }
 
 export interface MaintenanceJobHistoryEntry {
@@ -42,6 +48,27 @@ export interface MaintenanceJob {
   updatedAt: string;
   history: MaintenanceJobHistoryEntry[];
   partsRequired?: string[];
+  /** Scheduled (PM) vs unplanned (breakdown/defect) */
+  planned: boolean;
+  /** Component/system for repair trend and configuration (e.g. brakes, engine, electrical) */
+  component?: string;
+  /** Failure/defect code (internal or VMRS-style) */
+  failureCode?: string;
+  /** When work actually started (for MTTR / time-in-state) */
+  startedAt?: string;
+  /** When job was completed */
+  completedAt?: string;
+  /** Required-by date for prioritization (TOC) */
+  dueDate?: string;
+  /** Actual labor hours (capacity/cost) */
+  laborHoursActual?: number;
+  /** Assigned technician or bay (TOC capacity) */
+  assignedTo?: string;
+  /** When/how fault was first reported (andon) */
+  reportedAt?: string;
+  reportedBy?: string;
+  /** Odometer at job open (for MTBF) */
+  odometerAtJobOpen?: number;
 }
 
 export interface PartOrder {
@@ -52,4 +79,8 @@ export interface PartOrder {
   expectedDelivery?: string;
   status: PartOrderStatus;
   maintenanceJobId?: string;
+  /** When part was received (for lead time) */
+  receivedAt?: string;
+  /** Quantity used on linked job (configuration / cost) */
+  quantityUsed?: number;
 }

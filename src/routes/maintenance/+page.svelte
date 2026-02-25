@@ -3,7 +3,7 @@
 
   type JobWithVehicle = MaintenanceJob & { vehicleName: string };
 
-  let { data }: { data: { jobs: JobWithVehicle[] } } = $props();
+  let { data }: { data: { jobs: JobWithVehicle[]; components: string[] } } = $props();
 
   const priorityLabels: Record<string, string> = {
     low: 'Low',
@@ -21,6 +21,8 @@
 
   let priorityFilter = $state('');
   let statusFilter = $state('');
+  let componentFilter = $state('');
+  let plannedFilter = $state('');
   let showCompleted = $state(false);
 
   const filtered = $derived(
@@ -28,9 +30,18 @@
       if (!showCompleted && j.status === 'completed') return false;
       if (priorityFilter && j.priority !== priorityFilter) return false;
       if (statusFilter && j.status !== statusFilter) return false;
+      if (componentFilter && (j.component ?? 'other') !== componentFilter) return false;
+      if (plannedFilter === 'planned' && !j.planned) return false;
+      if (plannedFilter === 'unplanned' && j.planned) return false;
       return true;
     })
   );
+
+  function daysInState(job: JobWithVehicle): number {
+    const start = new Date(job.createdAt).getTime();
+    const end = job.completedAt ? new Date(job.completedAt).getTime() : Date.now();
+    return Math.floor((end - start) / (1000 * 60 * 60 * 24));
+  }
 
   let expandedId = $state<string | null>(null);
 
@@ -75,6 +86,32 @@
         </select>
       </label>
       <label class="flex items-center gap-2 text-sm text-muted">
+        <span>Component</span>
+        <select
+          bind:value={componentFilter}
+          class="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          aria-label="Filter by component"
+        >
+          <option value="">All</option>
+          {#each data.components as c}
+            <option value={c}>{c}</option>
+          {/each}
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label class="flex items-center gap-2 text-sm text-muted">
+        <span>Type</span>
+        <select
+          bind:value={plannedFilter}
+          class="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          aria-label="Filter by planned or unplanned"
+        >
+          <option value="">All</option>
+          <option value="planned">Planned</option>
+          <option value="unplanned">Unplanned</option>
+        </select>
+      </label>
+      <label class="flex items-center gap-2 text-sm text-muted">
         <input type="checkbox" bind:checked={showCompleted} class="rounded border-[var(--border-subtle)] text-accent focus:ring-accent" />
         <span>Show completed</span>
       </label>
@@ -88,8 +125,12 @@
           <th class="w-10" aria-label="Expand history"></th>
           <th>Job</th>
           <th>Vehicle</th>
+          <th>Component</th>
+          <th>Type</th>
+          <th>Due</th>
           <th>Priority</th>
           <th>Status</th>
+          <th>Time in state</th>
           <th>Updated</th>
         </tr>
       </thead>
@@ -112,14 +153,18 @@
             <td>
               <a href="/fleet" class="link-accent">{job.vehicleName}</a>
             </td>
+            <td class="text-muted text-sm capitalize">{job.component ?? '—'}</td>
+            <td><span class="badge {job.planned ? 'badge-low' : 'badge-high'}">{job.planned ? 'Planned' : 'Unplanned'}</span></td>
+            <td class="text-muted text-sm">{job.dueDate ?? '—'}</td>
             <td><span class="badge badge-{job.priority}">{priorityLabels[job.priority]}</span></td>
             <td><span class="badge badge-{job.status}">{statusLabels[job.status]}</span></td>
+            <td class="text-muted text-sm">{daysInState(job)}d</td>
             <td class="text-muted text-sm">{job.updatedAt}</td>
           </tr>
           {#if expandedId === job.id && job.history?.length}
             <tr class="bg-slate-50/80">
               <td></td>
-              <td colspan="5" class="py-3">
+              <td colspan="9" class="py-3">
                 <div class="history-panel pl-4 border-l-2 border-[var(--border-subtle)] space-y-2">
                   <h3 class="text-xs font-semibold text-muted uppercase tracking-wide">History</h3>
                   {#each job.history as entry (entry.date + entry.note)}

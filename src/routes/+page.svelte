@@ -8,7 +8,7 @@
     partsOnOrderCount: number;
   }
 
-  let { data }: { data: { vehicles: Vehicle[]; summary: Summary; urgentJobs: MaintenanceJob[]; partsOnOrder: PartOrder[] } } = $props();
+  let { data }: { data: { vehicles: Vehicle[]; summary: Summary; availabilityPct: number; unplannedPct: number; mttrDays: number | null; pmCompliancePct: number | null; repairTrendByComponent: Record<string, number>; urgentJobs: MaintenanceJob[]; partsOnOrder: PartOrder[] } } = $props();
 
   const statusLabels: Record<string, string> = {
     'in-use': 'In use',
@@ -65,6 +65,48 @@
       <p class="mt-1 text-xs text-muted">vehicles available</p>
       <a href="/fleet?status=ready" class="mt-3 text-sm link-accent">View ready →</a>
     </div>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="font-display text-base font-semibold mb-2">Availability metrics</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-3">
+      <div class="card p-3">
+        <p class="text-xs font-medium uppercase tracking-wider text-muted">Fleet availability</p>
+        <p class="mt-0.5 text-xl font-display font-semibold">{data.availabilityPct}%</p>
+      </div>
+      <div class="card p-3">
+        <p class="text-xs font-medium uppercase tracking-wider text-muted">Unplanned jobs</p>
+        <p class="mt-0.5 text-xl font-display font-semibold">{data.unplannedPct}%</p>
+      </div>
+      <div class="card p-3">
+        <p class="text-xs font-medium uppercase tracking-wider text-muted">MTTR (days)</p>
+        <p class="mt-0.5 text-xl font-display font-semibold">{data.mttrDays != null ? data.mttrDays : '—'}</p>
+      </div>
+      <div class="card p-3">
+        <p class="text-xs font-medium uppercase tracking-wider text-muted">PM compliance</p>
+        <p class="mt-0.5 text-xl font-display font-semibold">{data.pmCompliancePct != null ? data.pmCompliancePct + '%' : '—'}</p>
+      </div>
+    </div>
+    {#if Object.keys(data.repairTrendByComponent).length > 0}
+      <div class="card table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Job count</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each Object.entries(data.repairTrendByComponent).sort((a, b) => b[1] - a[1]) as [component, count]}
+              <tr>
+                <td class="font-medium capitalize">{component}</td>
+                <td>{count}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    {/if}
   </section>
 
   {#if data.urgentJobs.length > 0}
