@@ -1,0 +1,12 @@
+[
+  {"id": "v1", "name": "Van 01", "status": "in-use", "lastService": "2025-01-15", "nextService": "2025-04-15", "odometer": 89200, "driver": "J. Martinez"},
+  {"id": "v2", "name": "Van 02", "status": "ready", "lastService": "2025-02-01", "nextService": "2025-05-01", "odometer": 65400},
+  {"id": "v3", "name": "Van 03", "status": "maintenance", "lastService": "2024-11-20", "nextService": "2025-02-20", "odometer": 112300},
+  {"id": "v4", "name": "Sedan 01", "status": "in-use", "lastService": "2025-01-28", "nextService": "2025-04-28", "odometer": 43100, "driver": "A. Chen"},
+  {"id": "v5", "name": "Sedan 02", "status": "ready", "lastService": "2025-02-10", "nextService": "2025-05-10", "odometer": 28900},
+  {"id": "v6", "name": "Truck 01", "status": "out-of-service", "lastService": "2024-09-05", "odometer": 178500},
+  {"id": "v7", "name": "Truck 02", "status": "in-use", "lastService": "2025-01-08", "nextService": "2025-04-08", "odometer": 95600, "driver": "M. O'Brien"},
+  {"id": "v8", "name": "Van 04", "status": "reserved", "lastService": "2025-02-05", "nextService": "2025-05-05", "odometer": 52100},
+  {"id": "v9", "name": "Sedan 03", "status": "maintenance", "lastService": "2024-12-12", "nextService": "2025-03-12", "odometer": 67200},
+  {"id": "v10", "name": "Van 05", "status": "ready", "lastService": "2025-02-18", "nextService": "2025-05-18", "odometer": 33400}
+]

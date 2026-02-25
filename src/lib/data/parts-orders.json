@@ -1,0 +1,46 @@
+[
+  {
+    "id": "po1",
+    "partName": "Brake pads (front)",
+    "quantity": 1,
+    "orderDate": "2025-02-12",
+    "expectedDelivery": "2025-02-28",
+    "status": "ordered",
+    "maintenanceJobId": "mj1"
+  },
+  {
+    "id": "po2",
+    "partName": "Brake pads (rear)",
+    "quantity": 1,
+    "orderDate": "2025-02-12",
+    "expectedDelivery": "2025-02-25",
+    "status": "shipped",
+    "maintenanceJobId": "mj1"
+  },
+  {
+    "id": "po3",
+    "partName": "Timing cover gasket",
+    "quantity": 1,
+    "orderDate": "2025-02-16",
+    "expectedDelivery": "2025-02-18",
+    "status": "received",
+    "maintenanceJobId": "mj2"
+  },
+  {
+    "id": "po4",
+    "partName": "Oil filter (bulk)",
+    "quantity": 24,
+    "orderDate": "2025-02-20",
+    "expectedDelivery": "2025-02-26",
+    "status": "ordered"
+  },
+  {
+    "id": "po5",
+    "partName": "Reman transmission – Truck 01",
+    "quantity": 1,
+    "orderDate": "",
+    "expectedDelivery": "",
+    "status": "ordered",
+    "maintenanceJobId": "mj3"
+  }
+]

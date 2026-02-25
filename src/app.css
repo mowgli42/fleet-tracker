@@ -1,0 +1,261 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- 2.0 Design system: industrial / utilitarian --- */
+@layer base {
+  :root {
+    --sidebar-width: 13rem;
+    --color-accent: #0d9488;
+    --color-accent-hover: #0f766e;
+    --surface-dark: #1e293b;
+    --surface-dark-hover: #334155;
+    --surface-dark-border: #334155;
+    --text-on-dark: #f1f5f9;
+    --text-on-dark-muted: #94a3b8;
+    --bg-main: #f1f5f9;
+    --bg-main-gradient: linear-gradient(180deg, #e2e8f0 0%, #f1f5f9 12rem);
+    --bg-card: #ffffff;
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --border-subtle: #e2e8f0;
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06);
+    --shadow-card-hover: 0 4px 12px rgba(15, 23, 42, 0.08);
+    --radius: 0.5rem;
+    --radius-lg: 0.75rem;
+    --transition-fast: 150ms ease;
+    --transition-normal: 220ms ease;
+  }
+
+  html {
+    @apply antialiased;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  body {
+    background: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Sora', system-ui, sans-serif;
+  }
+}
+
+/* Skip link */
+.skip-link {
+  @apply fixed left-2 top-2 z-50 -translate-y-16 rounded px-3 py-2 text-sm font-medium no-underline transition focus:translate-y-0 focus:outline-none;
+  background: var(--surface-dark);
+  color: var(--text-on-dark);
+  box-shadow: var(--shadow-card-hover);
+}
+.skip-link:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-accent);
+}
+
+/* App shell */
+.app-shell {
+  @apply flex min-h-screen;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  @apply shrink-0 flex flex-col;
+  background: var(--surface-dark);
+  color: var(--text-on-dark);
+  border-right: 1px solid var(--surface-dark-border);
+}
+
+.sidebar-header {
+  @apply px-4 py-3 border-b flex items-center justify-between;
+  border-color: var(--surface-dark-border);
+}
+
+.logo {
+  font-family: 'Sora', system-ui, sans-serif;
+  @apply font-semibold text-lg no-underline transition;
+  color: var(--text-on-dark);
+}
+.logo:hover {
+  color: white;
+}
+
+.version-pill {
+  @apply text-[10px] font-medium px-2 py-0.5 rounded-full;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-on-dark-muted);
+}
+
+.sidebar-nav ul {
+  @apply list-none p-2 m-0;
+}
+
+.sidebar-nav li {
+  @apply m-0;
+}
+
+.sidebar-nav a {
+  @apply block px-3 py-2 rounded-md no-underline transition;
+  color: var(--text-on-dark-muted);
+}
+.sidebar-nav a:hover {
+  background: var(--surface-dark-hover);
+  color: var(--text-on-dark);
+}
+.sidebar-nav a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.sidebar-nav a.active {
+  background: var(--surface-dark-hover);
+  color: white;
+  font-weight: 500;
+}
+
+/* Main content: top-anchored, compact */
+.main {
+  flex: 1;
+  @apply overflow-auto;
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-main-gradient);
+}
+@media (min-width: 768px) {
+  .main {
+    padding: 1.5rem 2rem;
+  }
+}
+
+/* Page header: compact, top row */
+.page-header {
+  @apply flex flex-wrap items-baseline justify-between gap-3 mb-5;
+}
+.page-header h1 {
+  font-family: 'Sora', system-ui, sans-serif;
+  @apply text-xl font-semibold m-0;
+  color: var(--text-primary);
+}
+.page-header .subtitle {
+  @apply text-sm mt-0.5;
+  color: var(--text-muted);
+}
+
+/* Cards: depth, subtle border */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
+  @apply overflow-hidden transition;
+}
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card-header {
+  @apply px-4 py-2.5 border-b font-medium text-sm;
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+/* Links: accent color */
+.link-accent {
+  color: var(--color-accent);
+  @apply font-medium no-underline transition;
+}
+.link-accent:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+/* Badges: semantic, compact */
+.badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium;
+}
+
+.badge-in-use { background: #dbeafe; color: #1e40af; }
+.badge-ready { background: #dcfce7; color: #166534; }
+.badge-maintenance { background: #fef3c7; color: #92400e; }
+.badge-out-of-service { background: #fee2e2; color: #991b1b; }
+.badge-reserved { background: #f1f5f9; color: #475569; }
+
+.badge-low { background: #f1f5f9; color: #475569; }
+.badge-medium { background: #dbeafe; color: #1e40af; }
+.badge-high { background: #fef3c7; color: #92400e; }
+.badge-critical { background: #fee2e2; color: #991b1b; }
+
+.badge-open { background: #f1f5f9; color: #475569; }
+.badge-in-progress { background: #dbeafe; color: #1e40af; }
+.badge-waiting-parts { background: #fef3c7; color: #92400e; }
+.badge-completed { background: #dcfce7; color: #166534; }
+
+.badge-ordered { background: #f1f5f9; color: #475569; }
+.badge-shipped { background: #dbeafe; color: #1e40af; }
+.badge-received { background: #dcfce7; color: #166534; }
+
+/* Tables: compact, scannable */
+.table-container {
+  @apply overflow-x-auto rounded-lg;
+}
+
+.table {
+  @apply w-full border-collapse text-sm;
+}
+
+.table th {
+  @apply text-left px-4 py-2.5 font-medium border-b;
+  background: #f8fafc;
+  border-color: var(--border-subtle);
+  color: var(--text-muted);
+  font-family: 'Sora', system-ui, sans-serif;
+}
+
+.table td {
+  @apply px-4 py-2.5 border-b;
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.table tbody tr {
+  transition: background var(--transition-fast);
+}
+.table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Staggered reveal (use .reveal and .reveal-delay-* on children) */
+.reveal {
+  opacity: 0;
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+.reveal-delay-1 { animation-delay: 0.05s; }
+.reveal-delay-2 { animation-delay: 0.1s; }
+.reveal-delay-3 { animation-delay: 0.15s; }
+.reveal-delay-4 { animation-delay: 0.2s; }
+.reveal-delay-5 { animation-delay: 0.25s; }
+.reveal-delay-6 { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Expand/collapse transition for maintenance history */
+.history-panel {
+  animation: fadeIn 0.25s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

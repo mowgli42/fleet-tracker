@@ -1,0 +1,89 @@
+[
+  {
+    "id": "mj1",
+    "vehicleId": "v3",
+    "title": "Brake pad replacement",
+    "description": "Front and rear brake pads worn below spec. Rotors may need resurfacing.",
+    "priority": "high",
+    "status": "waiting-parts",
+    "createdAt": "2025-02-10",
+    "updatedAt": "2025-02-22",
+    "partsRequired": ["Brake pads (front)", "Brake pads (rear)"],
+    "history": [
+      { "date": "2025-02-10", "note": "Job opened. Inspection completed.", "status": "open" },
+      { "date": "2025-02-12", "note": "Parts ordered. Awaiting delivery.", "status": "waiting-parts" },
+      { "date": "2025-02-22", "note": "Rear pads received. Front pads back-ordered, ETA 2025-02-28." }
+    ]
+  },
+  {
+    "id": "mj2",
+    "vehicleId": "v9",
+    "title": "Oil leak – timing cover",
+    "description": "Oil seepage from timing cover gasket. Needs gasket replacement.",
+    "priority": "critical",
+    "status": "in-progress",
+    "createdAt": "2025-02-15",
+    "updatedAt": "2025-02-24",
+    "partsRequired": ["Timing cover gasket", "Sealant"],
+    "history": [
+      { "date": "2025-02-15", "note": "Reported by driver. Diagnosed timing cover leak.", "status": "open" },
+      { "date": "2025-02-18", "note": "Parts in stock. Work started.", "status": "in-progress" },
+      { "date": "2025-02-24", "note": "Gasket replaced. Running tests." }
+    ]
+  },
+  {
+    "id": "mj3",
+    "vehicleId": "v6",
+    "title": "Transmission failure",
+    "description": "Transmission slipping. Diagnostic points to internal failure. Pending decision: rebuild vs replace.",
+    "priority": "critical",
+    "status": "open",
+    "createdAt": "2025-01-28",
+    "updatedAt": "2025-02-01",
+    "history": [
+      { "date": "2025-01-28", "note": "Vehicle towed in. Code P0700.", "status": "open" },
+      { "date": "2025-02-01", "note": "Quote requested for reman transmission. Awaiting approval." }
+    ]
+  },
+  {
+    "id": "mj4",
+    "vehicleId": "v1",
+    "title": "Scheduled service – 90k",
+    "description": "90k mile service: oil, filters, fluids, inspection.",
+    "priority": "medium",
+    "status": "open",
+    "createdAt": "2025-02-20",
+    "updatedAt": "2025-02-20",
+    "history": [
+      { "date": "2025-02-20", "note": "Scheduled for next available slot." }
+    ]
+  },
+  {
+    "id": "mj5",
+    "vehicleId": "v3",
+    "title": "AC compressor replacement",
+    "description": "AC not cooling. Compressor clutch and unit replaced.",
+    "priority": "low",
+    "status": "completed",
+    "createdAt": "2025-01-05",
+    "updatedAt": "2025-01-12",
+    "history": [
+      { "date": "2025-01-05", "note": "AC complaint. Diagnosed failed compressor.", "status": "open" },
+      { "date": "2025-01-08", "note": "Parts received. Work completed.", "status": "in-progress" },
+      { "date": "2025-01-12", "note": "Recharge and test passed. Closed.", "status": "completed" }
+    ]
+  },
+  {
+    "id": "mj6",
+    "vehicleId": "v9",
+    "title": "Tire rotation and balance",
+    "description": "Rotation and balance per schedule.",
+    "priority": "low",
+    "status": "open",
+    "createdAt": "2025-02-23",
+    "updatedAt": "2025-02-23",
+    "history": [
+      { "date": "2025-02-23", "note": "Added to queue after oil leak job." }
+    ]
+  }
+]
