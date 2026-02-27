@@ -8,11 +8,11 @@ A mockup car fleet management webtool built with SvelteKit and JSON. Tracks vehi
 
 | Dashboard | Fleet |
 |-----------|-------|
-| [![Dashboard](screenshots/dashboard.png)](screenshots/dashboard.png) | [![Fleet](screenshots/fleet.png)](screenshots/fleet.png) |
+| [![Dashboard](docs/dashboard.png)](docs/dashboard.png) | [![Fleet](docs/fleet.png)](docs/fleet.png) |
 
 | Maintenance | Parts |
 |-------------|-------|
-| [![Maintenance](screenshots/maintenance.png)](screenshots/maintenance.png) | [![Parts](screenshots/parts.png)](screenshots/parts.png) |
+| [![Maintenance](docs/maintenance.png)](docs/maintenance.png) | [![Parts](docs/parts.png)](docs/parts.png) |
 
 - **Dashboard** — Summary cards, availability metrics (fleet %, unplanned %, MTTR, PM compliance), repair trend by component, urgent maintenance, and parts on order.
 - **Fleet** — Vehicle grid/list with status filter and optional `?status=ready`.
@@ -55,4 +55,4 @@ npm run build
 node scripts/screenshots.mjs
 ```
 
-Screenshots are saved to `screenshots/` (Dashboard, Fleet, Maintenance, Parts).
+Screenshots are saved to `screenshots/`. Copy them to `docs/` for the README (or change the script’s `SCREENSHOTS_DIR` to `docs/`).
