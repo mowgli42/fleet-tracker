@@ -1,8 +1,4 @@
-import type { Vehicle } from '$lib/types/fleet';
-import vehiclesData from '$lib/data/vehicles.json';
-
-const vehicles = vehiclesData as Vehicle[];
-
+/** Fleet page uses fleetDataStore in the page. */
 export function load() {
-  return { vehicles };
+  return {};
 }

@@ -29,6 +29,14 @@ export interface Vehicle {
   role?: VehicleRole;
   /** Odometer at last completed service (for MTBF/trends) */
   odometerAtLastService?: number;
+  /** Phase 1: lifecycle timestamps */
+  intakeAt?: string;
+  checkedOutAt?: string;
+  releasedAt?: string;
+  /** Active maintenance job when status is maintenance */
+  currentJobId?: string;
+  /** Optional in Phase 1; required for production/VIN scan */
+  vin?: string;
 }
 
 export interface MaintenanceJobHistoryEntry {
@@ -69,6 +77,50 @@ export interface MaintenanceJob {
   reportedBy?: string;
   /** Odometer at job open (for MTBF) */
   odometerAtJobOpen?: number;
+  /** Phase 1: oil/fluid, tire, repair, etc. */
+  serviceType?: ServiceType;
+  /** Odometer when job was completed (mileage timeline) */
+  odometerAtCompletion?: number;
+  /** Link to OBD2 snapshot for this job */
+  obd2SnapshotId?: string;
+  /** Tire job: position (e.g. FL, FR, RL, RR) */
+  tirePosition?: string;
+  /** Tire job: spec or size */
+  tireSpec?: string;
+}
+
+export type ServiceType =
+  | 'oil-change'
+  | 'fluid-change'
+  | 'tire-replacement'
+  | 'tire-rotation'
+  | 'repair'
+  | 'inspection'
+  | 'other';
+
+/** OBD2 snapshot: DTCs and optional freeze frame / live data */
+export interface Obd2Snapshot {
+  id: string;
+  vehicleId: string;
+  maintenanceJobId?: string;
+  capturedAt: string;
+  dtcs: Obd2Dtc[];
+  freezeFrame?: Record<string, unknown>;
+  liveData?: Record<string, unknown>;
+  suggestedTasks?: Obd2SuggestedTask[];
+}
+
+export interface Obd2Dtc {
+  code: string;
+  description?: string;
+  status?: 'confirmed' | 'pending';
+}
+
+export interface Obd2SuggestedTask {
+  title: string;
+  description?: string;
+  priority?: JobPriority;
+  component?: string;
 }
 
 export interface PartOrder {

@@ -14,10 +14,12 @@ A mockup car fleet management webtool built with SvelteKit and JSON. Tracks vehi
 |-------------|-------|
 | [![Maintenance](docs/maintenance.png)](docs/maintenance.png) | [![Parts](docs/parts.png)](docs/parts.png) |
 
-- **Dashboard** — Summary cards, availability metrics (fleet %, unplanned %, MTTR, PM compliance), repair trend by component, urgent maintenance, and parts on order.
-- **Fleet** — Vehicle grid/list with status filter and optional `?status=ready`.
-- **Maintenance** — Open jobs with component, planned/unplanned, due date, time in state; filters by component and type; expandable history.
-- **Parts** — Orders with links to related jobs.
+- **Dashboard** — Summary cards with **stacked bar charts** (vehicles by status, open jobs by priority, parts on order by status; colors match status badges), availability metrics (fleet %, unplanned %, MTTR, PM compliance), repair trend by component chart, urgent maintenance table, and parts on order table.
+- **Fleet** — Vehicle grid/list with status filter and optional `?status=ready`; edit (pencil) and remove (slide in edit panel only).
+- **Maintenance** — Default view **By type**; open jobs with priority/status, due date, time in state; **New job** to create; edit (pencil) and remove (slide in edit panel only); expandable history and parts.
+- **Parts** — **Order part** to add; edit (pencil) and remove (slide in edit panel only); link to maintenance jobs.
+
+See **[docs/JOB-WORKFLOW.md](docs/JOB-WORKFLOW.md)** for a step-by-step guide and screenshots that explain the job workflow.
 
 ## Run locally
 
@@ -39,12 +41,16 @@ Output is in the `build/` directory.
 
 ## Features
 
-- **Dashboard** – Summary cards (vehicles by status, open jobs, parts on order), availability metrics (fleet availability %, unplanned %, MTTR, PM compliance %, repair trend by component), urgent maintenance list, parts on order list
-- **Fleet** – Vehicle list or grid with status badges; filter by status; optional `?status=ready` query
-- **Maintenance** – Open jobs with component, planned/unplanned, due date, time in state; filter by priority, status, component, and type; expandable row for job history
-- **Parts** – Parts on order with status and link to related maintenance job
+- **Dashboard** – Summary cards with stacked bar charts (vehicles by status, open jobs by priority, parts by status; colors match badges), availability metrics (fleet %, unplanned %, MTTR, PM compliance), repair trend by component chart, urgent maintenance and parts tables
+- **Fleet** – Vehicle list or grid with status badges; filter by status; edit (icon) and remove only in edit panel
+- **Maintenance** – Default view By type; New job; open jobs with priority/status, due date, time in state; edit and remove only in edit panel; expandable history and parts
+- **Parts** – Order part; edit and remove only in edit panel; link to maintenance jobs
 
 All data is read from JSON under `src/lib/data/` (no backend). Read-only mockup. Data model supports TPS/TOC-style metrics (planned vs unplanned, component, timestamps, technician assignment) and configuration (parts consumed, vehicle role).
+
+## Production readiness
+
+This app is a mockup/prototype. Additional steps are required to make it production-ready: security requirements, database backup and archive of legacy jobs and sold vehicles, phone apps that scan VINs, and a user-facing status board with a unique URL for tracking an assigned car. See the separate proposal: [docs/PROPOSAL-PRODUCTION-READINESS.md](docs/PROPOSAL-PRODUCTION-READINESS.md).
 
 ## Regenerating screenshots
 
@@ -55,4 +61,4 @@ npm run build
 node scripts/screenshots.mjs
 ```
 
-Screenshots are saved to `screenshots/`. Copy them to `docs/` for the README (or change the script’s `SCREENSHOTS_DIR` to `docs/`).
+Screenshots are saved to `docs/` (dashboard, fleet, maintenance, parts, and maintenance-edit for the job workflow doc).

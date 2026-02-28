@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const SCREENSHOTS_DIR = path.join(ROOT, 'screenshots');
+const SCREENSHOTS_DIR = path.join(ROOT, 'docs');
 const PORT = 4173;
 const BASE = `http://localhost:${PORT}`;
 
@@ -53,6 +53,7 @@ async function main() {
     process.exit(1);
   });
 
+  await new Promise((r) => setTimeout(r, 2000));
   try {
     await waitForServer();
   } catch (e) {
@@ -69,7 +70,7 @@ async function main() {
 
   // Load root once so CSS loads; then use client-side navigation (click links) so we
   // never do a full reload to /fleet etc. (preview serves those with relative asset paths that break).
-  await page.goto(BASE + '/', { waitUntil: 'networkidle' });
+  await page.goto(BASE + '/', { waitUntil: 'domcontentloaded', timeout: 15000 });
   await page.waitForSelector('.app-shell', { state: 'visible' });
   await page.waitForTimeout(500);
 
@@ -82,6 +83,19 @@ async function main() {
     const outPath = path.join(SCREENSHOTS_DIR, `${name}.png`);
     await page.screenshot({ path: outPath, type: 'png' });
     console.log('Saved', outPath);
+  }
+
+  // Maintenance edit panel (workflow screenshot)
+  await page.click('a[href="/maintenance"]');
+  await page.waitForURL((url) => url.pathname === '/maintenance');
+  await page.waitForTimeout(400);
+  const editBtn = await page.locator('button[aria-label="Edit job"]').first();
+  if ((await editBtn.count()) > 0) {
+    await editBtn.click();
+    await page.waitForTimeout(500);
+    const panelPath = path.join(SCREENSHOTS_DIR, 'maintenance-edit.png');
+    await page.screenshot({ path: panelPath, type: 'png' });
+    console.log('Saved', panelPath);
   }
 
   await browser.close();

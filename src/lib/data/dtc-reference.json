@@ -1,0 +1,38 @@
+{
+  "P0300": {
+    "title": "Random/multiple cylinder misfire",
+    "description": "Check ignition system, fuel delivery, compression. Inspect plugs, coils, injectors.",
+    "priority": "high",
+    "component": "engine"
+  },
+  "P0301": {
+    "title": "Cylinder 1 misfire",
+    "description": "Check cylinder 1 plug, coil, injector; compression test.",
+    "priority": "high",
+    "component": "engine"
+  },
+  "P0420": {
+    "title": "Catalyst system efficiency below threshold",
+    "description": "Check catalytic converter and O2 sensors. May indicate failed cat or downstream O2.",
+    "priority": "medium",
+    "component": "engine"
+  },
+  "P0171": {
+    "title": "System too lean (bank 1)",
+    "description": "Check MAF, vacuum leaks, fuel pressure, O2 sensors.",
+    "priority": "high",
+    "component": "engine"
+  },
+  "P0700": {
+    "title": "Transmission control system malfunction",
+    "description": "Read TCM codes for specific transmission fault. Check fluid level and condition.",
+    "priority": "critical",
+    "component": "transmission"
+  },
+  "P0505": {
+    "title": "Idle control system malfunction",
+    "description": "Check idle air control valve, throttle body, vacuum leaks.",
+    "priority": "medium",
+    "component": "engine"
+  }
+}
