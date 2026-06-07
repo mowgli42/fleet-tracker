@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "fleet_tracker",
+  "project_id": "f69f2b84-46ae-412e-acf7-3bb632b2f05e"
+}
