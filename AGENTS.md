@@ -9,3 +9,16 @@
 - Primary routes include dashboard (`/`), fleet (`/fleet`), maintenance (`/maintenance`), and parts (`/parts`) with shared app shell navigation.
 - README screenshots are captured with Playwright via `scripts/screenshots.mjs` after a build; against `npm run preview`, navigate from `/` using in-app links so CSS loads on subroutes (loading `/fleet` directly can break relative `./_app` assets).
 - Tests run with Vitest (`npm run test`).
+
+## Issue Tracking
+
+This project uses **bd (beads)** for issue tracking. Run `bd prime` for workflow context, or install hooks with `bd hooks install` for automatic context injection.
+
+Quick reference:
+
+- `bd ready` - find unblocked work
+- `bd create "Title" --type task --priority 2` - create an issue
+- `bd close <id>` - close completed work
+- `bd dolt push` - push Beads data when using a shared Beads remote
+
+For full workflow details, run `bd prime`.
