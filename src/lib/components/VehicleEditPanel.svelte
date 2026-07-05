@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Vehicle, VehicleStatus, VehicleRole, MaintenanceJob } from '$lib/types/fleet';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
+  import { findVehicleByVin, validateStatusChange } from '$lib/vehicle/vehicleRules';
   import SlideToRemove from '$lib/components/SlideToRemove.svelte';
 
   const statusOptions: { value: VehicleStatus; label: string }[] = [
@@ -50,7 +51,21 @@
   const checkoutNeedsDriver = $derived(form.status === 'in-use' && !form.driver?.trim());
 
   function saveFields() {
-    const now = new Date().toISOString().slice(0, 10);
+    const statusCheck = validateStatusChange(
+      form.status,
+      form.driver,
+      Boolean(openJobForVehicle) && form.status === 'ready'
+    );
+    if (!statusCheck.ok) {
+      alert(statusCheck.message);
+      return;
+    }
+    const vin = form.vin.trim() || undefined;
+    const dupVin = findVehicleByVin(fleet.vehicles, vin, vehicle.id);
+    if (dupVin) {
+      alert('A vehicle with this VIN already exists.');
+      return;
+    }
     const updatedVehicles = fleet.vehicles.map((v) =>
       v.id === vehicle.id
         ? {
@@ -124,7 +139,11 @@
   }
 
   function doCheckout() {
-    if (checkoutNeedsDriver) return;
+    const check = validateStatusChange('in-use', form.driver, false);
+    if (!check.ok) {
+      alert(check.message);
+      return;
+    }
     const now = new Date().toISOString().slice(0, 10);
     const updatedVehicles = fleet.vehicles.map((v) =>
       v.id === vehicle.id
@@ -144,7 +163,11 @@
   }
 
   function doRelease() {
-    if (!canRelease) return;
+    const check = validateStatusChange('ready', form.driver, Boolean(openJobForVehicle));
+    if (!check.ok) {
+      alert(check.message);
+      return;
+    }
     const now = new Date().toISOString().slice(0, 10);
     const updatedVehicles = fleet.vehicles.map((v) =>
       v.id === vehicle.id

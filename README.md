@@ -52,9 +52,16 @@ All data is read from JSON under `src/lib/data/` (no backend). Read-only mockup.
 
 To add [gstack](https://github.com/garrytan/gstack) for Cursor/Codex-style agent skills in this repo (plan/review/QA workflow), see **[docs/GSTACK-CURSOR.md](docs/GSTACK-CURSOR.md)**. You need **Bun** to run gstack’s `./setup`. The doc also lists how gstack interacts with other Cursor skills (e.g. frontend-design, Playwright MCP).
 
-## Spec-driven development (OpenSpec)
+## Spec-driven development (OpenSpec + Gherkin + Beads)
 
-Phase 1 offline sync is specified with Gherkin scenarios under **`openspec/changes/add-offline-sync-phase1/`**. Use Cursor slash commands: `/opsx:explore`, `/opsx:propose`, `/opsx:apply`, `/opsx:archive`. Validate with `npx @fission-ai/openspec validate add-offline-sync-phase1 --strict`. See **`openspec/project.md`** and **`AGENTS.md`**.
+Vehicle and sync behavior are specified with Gherkin scenarios. See **`openspec/WORKFLOW.md`**.
+
+- Living spec: `openspec/specs/vehicle/spec.md`
+- Gherkin features: `features/vehicle.feature`
+- Run tests: `npm test` and `npm run test:gherkin`
+- Task tracking: `bd ready`
+
+Phase 1 offline sync: **`openspec/changes/add-offline-sync-phase1/`**. Validate with `npx @fission-ai/openspec validate add-offline-sync-phase1 --strict`.
 
 ## Production readiness
 

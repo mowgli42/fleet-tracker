@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
+  import { filterVehicles } from '$lib/vehicle/vehicleRules';
   import VehicleEditPanel from '$lib/components/VehicleEditPanel.svelte';
   import VehicleDetailPanel from '$lib/components/VehicleDetailPanel.svelte';
   import VehicleAddPanel from '$lib/components/VehicleAddPanel.svelte';
@@ -38,6 +39,7 @@
   ];
 
   let statusFilter = $state('');
+  let searchQuery = $state('');
   let viewMode = $state<'grid' | 'list'>('grid');
   let prevSearch = $state('');
 
@@ -50,9 +52,7 @@
   });
 
   const filtered = $derived.by(() =>
-    statusFilter
-      ? vehicles.filter((v) => v.status === statusFilter)
-      : vehicles
+    filterVehicles(vehicles, { status: statusFilter || undefined, query: searchQuery || undefined })
   );
 </script>
 
@@ -64,6 +64,16 @@
     </div>
     <div class="flex flex-wrap items-center gap-3">
       <button type="button" class="btn btn-primary text-sm" onclick={() => (showAddVehicle = true)}>Add vehicle</button>
+      <label class="flex items-center gap-2 text-sm text-muted">
+        <span>Search</span>
+        <input
+          type="search"
+          bind:value={searchQuery}
+          placeholder="Name or VIN"
+          class="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+          aria-label="Search vehicles by name or VIN"
+        />
+      </label>
       <label class="flex items-center gap-2 text-sm text-muted">
         <span>Status</span>
         <select
