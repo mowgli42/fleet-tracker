@@ -63,8 +63,25 @@ Follow this order unless the user explicitly requests a different approach.
 
 | Capability | Spec |
 |------------|------|
+| Index + CMMS map | `openspec/specs/README.md` |
 | Vehicle | `openspec/specs/vehicle/spec.md` |
-| Offline sync | `openspec/changes/add-offline-sync-phase1/` (pending archive) |
+| Vehicle lifecycle | `openspec/specs/vehicle-lifecycle/spec.md` |
+| Maintenance jobs | `openspec/specs/maintenance-job/spec.md` |
+| Parts | `openspec/specs/parts-inventory/spec.md` |
+| PM | `openspec/specs/pm-scheduling/spec.md` |
+| OBD2 | `openspec/specs/obd2-diagnostics/spec.md` |
+| History | `openspec/specs/vehicle-history/spec.md` |
+| Dashboard | `openspec/specs/dashboard-analytics/spec.md` |
+| Offline sync | `openspec/specs/offline-sync/spec.md` |
+| Availability | `openspec/specs/fleet-availability/spec.md` |
+| Sync UI | `openspec/specs/sync-operations-ui/spec.md` |
+| Tablet intake | `openspec/specs/tablet-shop-floor/spec.md` |
+| Tablet jobs | `openspec/specs/tablet-job-workflow/spec.md` |
+| Cloud demo | `openspec/specs/cloud-multi-site/spec.md` |
+| Site transfer (P2) | `openspec/specs/site-transfer/spec.md` |
+| Production (P3) | `auth-access-control`, `data-lifecycle`, `driver-status-board`, `inspections-compliance` |
+
+**Pending archive:** change `add-offline-sync-phase1` (content promoted to living `offline-sync` + `fleet-availability` specs).
 
 ## Communication rules
 

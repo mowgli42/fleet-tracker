@@ -32,30 +32,21 @@ The system SHALL allow fleet managers to register new vehicles with identifying 
 - **THEN** registration SHALL be rejected
 - **AND** a clear error message SHALL be shown
 
-### Requirement: Vehicle Status Management
+### Requirement: Vehicle Status Display
 
-The system SHALL track and allow updates to vehicle operational status using the enum: `in-use`, `ready`, `maintenance`, `out-of-service`, `reserved`.
+The system SHALL display vehicle operational status using the enum: `in-use`, `ready`, `maintenance`, `out-of-service`, `reserved`.
 
-#### Scenario: Change vehicle status
+#### Scenario: Status visible on fleet list
 
-- **GIVEN** an existing vehicle
-- **WHEN** a fleet manager changes its status (e.g. `ready` → `maintenance`)
-- **THEN** the new status SHALL be saved and persisted
-- **AND** the change SHALL be reflected on the fleet list and detail views
+- **GIVEN** vehicles exist with various statuses
+- **WHEN** a user views `/fleet`
+- **THEN** each vehicle SHALL show a status badge matching its stored status
 
-#### Scenario: Checkout requires driver when in-use
+#### Scenario: Direct status edit in vehicle form
 
-- **GIVEN** an existing vehicle
-- **WHEN** a fleet manager sets status to `in-use` without a driver name
-- **THEN** checkout SHALL be blocked
-- **AND** a clear validation message SHALL be shown
-
-#### Scenario: Release blocked when open maintenance job exists
-
-- **GIVEN** a vehicle has a non-completed maintenance job
-- **WHEN** a fleet manager attempts to release the vehicle from maintenance
-- **THEN** release SHALL be blocked
-- **AND** the open job SHALL remain linked
+- **GIVEN** the vehicle edit panel is open
+- **WHEN** a fleet manager changes status and saves
+- **THEN** the new status SHALL persist subject to rules in `vehicle-lifecycle` capability
 
 ### Requirement: Vehicle Search and Filtering
 
