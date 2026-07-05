@@ -48,9 +48,21 @@ Output is in the `build/` directory.
 
 All data is read from JSON under `src/lib/data/` (no backend). Read-only mockup. Data model supports TPS/TOC-style metrics (planned vs unplanned, component, timestamps, technician assignment) and configuration (parts consumed, vehicle role).
 
+## Optional: gstack (AI skills)
+
+To add [gstack](https://github.com/garrytan/gstack) for Cursor/Codex-style agent skills in this repo (plan/review/QA workflow), see **[docs/GSTACK-CURSOR.md](docs/GSTACK-CURSOR.md)**. You need **Bun** to run gstack’s `./setup`. The doc also lists how gstack interacts with other Cursor skills (e.g. frontend-design, Playwright MCP).
+
+## Spec-driven development (OpenSpec)
+
+Phase 1 offline sync is specified with Gherkin scenarios under **`openspec/changes/add-offline-sync-phase1/`**. Use Cursor slash commands: `/opsx:explore`, `/opsx:propose`, `/opsx:apply`, `/opsx:archive`. Validate with `npx @fission-ai/openspec validate add-offline-sync-phase1 --strict`. See **`openspec/project.md`** and **`AGENTS.md`**.
+
 ## Production readiness
 
 This app is a mockup/prototype. Additional steps are required to make it production-ready: security requirements, database backup and archive of legacy jobs and sold vehicles, phone apps that scan VINs, and a user-facing status board with a unique URL for tracking an assigned car. See the separate proposal: [docs/PROPOSAL-PRODUCTION-READINESS.md](docs/PROPOSAL-PRODUCTION-READINESS.md).
+
+### Target architecture (local site + cloud)
+
+Operations are meant to run as a **local-first site** (browser/PWA + durable on-prem log/outbox + sync worker) talking to **cloud** services (sync ingress, event store, projector, owner read API). Phase 1 demo pieces live in this repo (`src/lib/sync/`, optional `npm run demo:sync-server`). A **PlantUML** topology and full **container/API status** tables, plus **sequence diagrams** for happy path, outage/reconnect, and owner reads, are in **[docs/PRODUCTION-ARCHITECTURE.md](docs/PRODUCTION-ARCHITECTURE.md)**. The same diagram source is in [docs/diagrams/production-architecture.puml](docs/diagrams/production-architecture.puml) for local rendering.
 
 ## Regenerating screenshots
 

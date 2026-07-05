@@ -1,5 +1,6 @@
 <script lang="ts">
   import { fleetDataStore } from '$lib/stores/fleetData';
+  import { cloudOnline, syncSnapshot } from '$lib/stores/syncRuntime';
   import { computeDashboardData } from '$lib/utils/dashboardSummary';
   import StackedBar from '$lib/components/StackedBar.svelte';
 
@@ -91,13 +92,50 @@
       textColor: componentPalette[i % componentPalette.length].textColor
     }));
   });
+
+  function formatLastSync(iso: string | null): string {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
+    } catch {
+      return '—';
+    }
+  }
 </script>
 
 <div class="dashboard">
-  <header class="page-header">
-    <div>
+  <header class="page-header page-header--with-meta">
+    <div class="min-w-0">
       <h1>Dashboard</h1>
       <p class="subtitle">Fleet overview and quick links</p>
+    </div>
+    <div
+      class="text-right shrink-0 w-full sm:w-auto sm:max-w-[20rem] mt-2 sm:mt-0"
+      role="status"
+      aria-live="polite"
+      aria-label="Cloud sync status"
+    >
+      <a
+        href="/sync"
+        class="text-[10px] font-medium uppercase tracking-wider text-muted mb-0.5 inline-block hover:text-[var(--color-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] rounded"
+      >
+        Cloud sync
+      </a>
+      <p class="text-sm font-medium text-[var(--text-primary)]">
+        <span class="inline-flex items-center justify-end gap-1.5 flex-wrap">
+          <span
+            class="inline-block w-2 h-2 rounded-full shrink-0 {$cloudOnline ? 'bg-emerald-500' : 'bg-amber-500'}"
+            aria-hidden="true"
+          ></span>
+          {$cloudOnline ? 'Online' : 'Offline'}
+          {#if $syncSnapshot.pendingOutbox > 0}
+            <span class="text-muted font-normal">· {$syncSnapshot.pendingOutbox} pending</span>
+          {/if}
+        </span>
+      </p>
+      <p class="text-xs text-muted mt-1">
+        Last update: {formatLastSync($syncSnapshot.lastUpdatedAt)}
+      </p>
     </div>
   </header>
 

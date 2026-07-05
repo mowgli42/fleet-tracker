@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { MaintenanceJob, JobPriority, JobStatus, ServiceType } from '$lib/types/fleet';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
+  import { emitMaintenanceJobDelta } from '$lib/sync/emitMaintenance';
+  import { refreshSyncSnapshot } from '$lib/stores/syncRuntime';
 
   const priorityOptions: { value: JobPriority; label: string }[] = [
     { value: 'low', label: 'Low' },
@@ -67,6 +69,8 @@
     };
     const updatedJobs = [...fleet.jobs, newJob];
     saveFleetData({ ...fleet, jobs: updatedJobs });
+    emitMaintenanceJobDelta(null, newJob);
+    refreshSyncSnapshot();
     onClose();
   }
 </script>

@@ -2,6 +2,19 @@
 
 - When README or docs show UI screenshots, keep image paths consistent with where files are committed (e.g. `docs/` vs `screenshots/`) and regenerate screenshots after substantive UI changes.
 
+## OpenSpec (spec-driven development)
+
+This project uses [OpenSpec](https://github.com/Fission-AI/OpenSpec) with Gherkin-style scenarios for verification.
+
+**Before implementing features:**
+- Read `openspec/AGENTS.md` and the active change under `openspec/changes/<change-id>/`
+- Treat `specs/**/spec.md` delta requirements + `#### Scenario:` blocks as the behavioral contract
+- Check `verification.md` in the change folder for scenario-to-test mapping
+
+**Workflow:** `/opsx:explore` → `/opsx:propose` → `/opsx:apply` → verify against `verification.md` → `/opsx:archive`
+
+**Active change (Phase 1):** `add-offline-sync-phase1`
+
 ## Learned Workspace Facts
 
 - fleet-tracker is SvelteKit (Svelte 5) with TypeScript, Tailwind CSS, and `@sveltejs/adapter-static` for a prerendered static site (`npm run build`).

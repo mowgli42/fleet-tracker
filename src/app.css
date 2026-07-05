@@ -1,3 +1,5 @@
+@import './lib/styles/prototype-themes.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,7 +7,7 @@
 /* --- 2.0 Design system: industrial / utilitarian --- */
 @layer base {
   :root {
-    --sidebar-width: 13rem;
+    --sidebar-width: 14.5rem;
     --color-accent: #0d9488;
     --color-accent-hover: #0f766e;
     --surface-dark: #1e293b;
@@ -62,7 +64,7 @@
 /* Sidebar */
 .sidebar {
   width: var(--sidebar-width);
-  @apply shrink-0 flex flex-col;
+  @apply shrink-0 flex flex-col min-h-screen;
   background: var(--surface-dark);
   color: var(--text-on-dark);
   border-right: 1px solid var(--surface-dark-border);
@@ -130,6 +132,9 @@
 /* Page header: compact, top row */
 .page-header {
   @apply flex flex-wrap items-baseline justify-between gap-3 mb-5;
+}
+.page-header.page-header--with-meta {
+  @apply items-start;
 }
 .page-header h1 {
   font-family: 'Sora', system-ui, sans-serif;

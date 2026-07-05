@@ -6,7 +6,6 @@
 
 import { chromium } from 'playwright';
 import { spawn } from 'child_process';
-import { createWriteStream } from 'fs';
 import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -90,13 +89,17 @@ async function main() {
   await page.waitForURL((url) => url.pathname === '/maintenance');
   await page.waitForTimeout(400);
   const editBtn = await page.locator('button[aria-label="Edit job"]').first();
-  if ((await editBtn.count()) > 0) {
-    await editBtn.click();
-    await page.waitForTimeout(500);
-    const panelPath = path.join(SCREENSHOTS_DIR, 'maintenance-edit.png');
-    await page.screenshot({ path: panelPath, type: 'png' });
-    console.log('Saved', panelPath);
+  if ((await editBtn.count()) === 0) {
+    await browser.close();
+    preview.kill();
+    throw new Error('Could not capture maintenance-edit screenshot: no Edit job button found. Ensure at least one maintenance job exists.');
   }
+
+  await editBtn.click();
+  await page.waitForTimeout(500);
+  const panelPath = path.join(SCREENSHOTS_DIR, 'maintenance-edit.png');
+  await page.screenshot({ path: panelPath, type: 'png' });
+  console.log('Saved', panelPath);
 
   await browser.close();
   preview.kill();

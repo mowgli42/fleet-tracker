@@ -7,21 +7,31 @@
     segments,
     totalLabel = 'Total',
     height = '1.25rem',
-    showLegend = true
+    showLegend = true,
+    theme = 'default'
   }: {
     segments: { label: string; count: number; bg: string; textColor?: string }[];
     totalLabel?: string;
     height?: string;
     showLegend?: boolean;
+    /** Cloud ops shell uses light track + muted legend. */
+    theme?: 'default' | 'cloud';
   } = $props();
 
   const total = $derived(segments.reduce((s, seg) => s + seg.count, 0));
   const nonZero = $derived(segments.filter((s) => s.count > 0));
+
+  const trackClass = $derived(
+    theme === 'cloud'
+      ? 'border border-[var(--cloud-border)] bg-[var(--cloud-bg)]'
+      : 'border border-[var(--border-subtle)] bg-slate-100'
+  );
+  const legendTextClass = $derived(theme === 'cloud' ? 'text-[var(--cloud-muted)]' : 'text-muted');
 </script>
 
 <div class="stacked-bar flex flex-col gap-1.5">
   <div
-    class="flex rounded-md overflow-hidden border border-[var(--border-subtle)] bg-slate-100"
+    class="flex rounded-md overflow-hidden {trackClass}"
     style="height: {height}; min-height: {height};"
     role="img"
     aria-label="{totalLabel}: {total}. {nonZero.map((s) => `${s.label}: ${s.count}`).join(', ')}"
@@ -41,7 +51,7 @@
     {/each}
   </div>
   {#if showLegend && nonZero.length > 0}
-    <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted">
+    <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs {legendTextClass}">
       {#each nonZero as seg}
         <span class="flex items-center gap-1">
           <span

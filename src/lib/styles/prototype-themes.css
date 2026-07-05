@@ -1,0 +1,112 @@
+/* Tablet shop prototype: dark, high-contrast, touch-friendly */
+.proto-tablet {
+  --proto-bg: #0a0d12;
+  --proto-surface: #121822;
+  --proto-surface-elevated: #1a2230;
+  --proto-border: #2a3544;
+  --proto-text: #e8edf4;
+  --proto-muted: #8b9aaf;
+  --proto-accent: #2dd4bf;
+  --proto-accent-dim: rgba(45, 212, 191, 0.15);
+  --proto-warn: #fbbf24;
+  --proto-danger: #f87171;
+  --proto-success: #4ade80;
+  min-height: 100vh;
+  background: var(--proto-bg);
+  color: var(--proto-text);
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.proto-tablet h1,
+.proto-tablet h2,
+.proto-tablet h3,
+.proto-tablet .font-display {
+  font-family: 'Sora', system-ui, sans-serif;
+}
+
+.proto-tablet .proto-card {
+  background: var(--proto-surface);
+  border: 1px solid var(--proto-border);
+  border-radius: var(--radius-lg, 0.75rem);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.proto-tablet .proto-btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold transition;
+  background: var(--proto-accent-dim);
+  color: var(--proto-accent);
+  border: 1px solid rgba(45, 212, 191, 0.35);
+}
+.proto-tablet .proto-btn-primary:hover {
+  background: rgba(45, 212, 191, 0.22);
+}
+
+.proto-tablet .proto-btn-ghost {
+  @apply inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm text-[var(--proto-muted)] transition;
+  border: 1px solid transparent;
+}
+.proto-tablet .proto-btn-ghost:hover {
+  background: var(--proto-surface-elevated);
+  color: var(--proto-text);
+}
+
+.proto-tablet nav.proto-tabbar {
+  @apply fixed bottom-0 left-0 right-0 z-40 flex justify-around border-t px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))];
+  background: var(--proto-surface);
+  border-color: var(--proto-border);
+}
+
+.proto-tablet nav.proto-tabbar a {
+  @apply flex flex-col items-center gap-0.5 rounded-lg px-3 py-2 text-[11px] font-medium no-underline;
+  color: var(--proto-muted);
+  min-width: 4rem;
+}
+.proto-tablet nav.proto-tabbar a.active {
+  color: var(--proto-accent);
+  background: var(--proto-accent-dim);
+}
+
+/* Cloud ops prototype: light shell, warm accent (distinct from main app teal) */
+.proto-cloud {
+  --cloud-bg: #f1f5f9;
+  --cloud-surface: #ffffff;
+  --cloud-border: #e2e8f0;
+  --cloud-text: #0f172a;
+  --cloud-muted: #64748b;
+  --cloud-accent: #c2410c;
+  --cloud-accent-soft: #fff7ed;
+  --cloud-accent-border: #fdba74;
+  --cloud-ok: #15803d;
+  --cloud-warn: #a16207;
+  --cloud-bad: #b91c1c;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #e2e8f0 0%, var(--cloud-bg) 14rem);
+  color: var(--cloud-text);
+}
+
+.proto-cloud h1,
+.proto-cloud h2,
+.proto-cloud h3,
+.proto-cloud .font-display {
+  font-family: 'Sora', system-ui, sans-serif;
+}
+
+.proto-cloud .cloud-card {
+  background: var(--cloud-surface);
+  border: 1px solid var(--cloud-border);
+  border-radius: var(--radius-lg, 0.75rem);
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(15, 23, 42, 0.06));
+}
+
+.proto-cloud .cloud-pill {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  background: var(--cloud-accent-soft);
+  color: var(--cloud-accent);
+  border: 1px solid var(--cloud-accent-border);
+}
+
+.proto-cloud .cloud-header {
+  border-bottom: 1px solid var(--cloud-border);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+}

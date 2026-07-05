@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { MaintenanceJob } from '$lib/types/fleet';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
+  import { emitMaintenanceJobDelta } from '$lib/sync/emitMaintenance';
+  import { refreshSyncSnapshot } from '$lib/stores/syncRuntime';
   import Obd2IntakeModal from '$lib/components/Obd2IntakeModal.svelte';
   import MaintenanceJobEditPanel from '$lib/components/MaintenanceJobEditPanel.svelte';
   import MaintenanceJobAddPanel from '$lib/components/MaintenanceJobAddPanel.svelte';
@@ -123,11 +125,17 @@
   }
 
   function removeJob(jobId: string) {
+    const job = fleet.jobs.find((j) => j.id === jobId);
+    if (job) {
+      // Next shape is synthetic: job is deleted, not completed; "completed" lets emit detect blocking → cleared.
+      emitMaintenanceJobDelta(job, { ...job, status: 'completed' });
+    }
     const updatedJobs = fleet.jobs.filter((j) => j.id !== jobId);
     const updatedVehicles = fleet.vehicles.map((v) =>
       v.currentJobId === jobId ? { ...v, currentJobId: undefined } : v
     );
     saveFleetData({ ...fleet, jobs: updatedJobs, vehicles: updatedVehicles });
+    refreshSyncSnapshot();
     if (editingJobId === jobId) editingJobId = null;
     if (obd2JobId === jobId) obd2JobId = null;
     if (expandedId === jobId) expandedId = null;

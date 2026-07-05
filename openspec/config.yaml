@@ -1,0 +1,17 @@
+schema: spec-driven
+
+context: |
+  Fleet Tracker: SvelteKit static fleet management app with local-first sync demo.
+  Stack: TypeScript, Svelte 5, Tailwind, Vitest, Playwright screenshots.
+  Readiness MUST use projectReadiness.ts only. OpenSpec + Gherkin scenarios drive Phase 1.
+  See openspec/project.md and docs/OFFICE-HOURS-DESIGN-20260327.md.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
