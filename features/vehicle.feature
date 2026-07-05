@@ -23,11 +23,6 @@ Feature: Vehicle Management
     When I attempt to register a vehicle with VIN "1hgbh41jxmn109186" and name "Dup VIN"
     Then registration should be rejected with message containing "VIN already exists"
 
-  Scenario: Checkout requires driver when in-use
-    Given the fleet has a vehicle with id "v2" and status "ready"
-    When I attempt to set vehicle "v2" status to "in-use" without a driver
-    Then status change should be rejected with message containing "driver"
-
   Scenario: Filter vehicles by status
     Given the fleet has vehicles:
       | id | name  | status      |

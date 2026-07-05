@@ -1,11 +1,14 @@
 import type { FleetData } from '$lib/stores/fleetData';
 import type { MaintenanceJob, PartOrder, Vehicle } from '$lib/types/fleet';
+import { computePmCompliancePct } from '$lib/pm/pmSchedulingRules';
+import { PM_AT_RISK_DAYS } from '$lib/sync/constants';
 
 export interface DashboardSummary {
   vehiclesByStatus: Record<string, number>;
   openJobsCount: number;
   openJobsByPriority: Record<string, number>;
   partsOnOrderCount: number;
+  partsByStatus: Record<string, number>;
 }
 
 export interface DashboardData {
@@ -35,20 +38,32 @@ export function computeDashboardData(fleet: FleetData): DashboardData {
 
   const vehicleById = Object.fromEntries(vehicles.map((v) => [v.id, v]));
   const urgentJobs = openJobs
-    .filter((j) => j.priority === 'critical' || j.priority === 'high')
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .filter((j) => {
+      if (j.priority === 'critical' || j.priority === 'high') return true;
+      if (!j.dueDate) return false;
+      const days = (new Date(j.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      return days >= 0 && days <= PM_AT_RISK_DAYS;
+    })
+    .sort((a, b) => new Date(a.dueDate ?? a.createdAt).getTime() - new Date(b.dueDate ?? b.createdAt).getTime())
     .slice(0, 5)
     .map((j) => ({ ...j, vehicleName: vehicleById[j.vehicleId]?.name ?? j.vehicleId }));
 
   const partsOnOrder = parts.filter((p) => p.status !== 'received');
+  const partsByStatus = parts.reduce<Record<string, number>>((acc, p) => {
+    acc[p.status] = (acc[p.status] ?? 0) + 1;
+    return acc;
+  }, {});
 
   const availableCount = vehicles.filter(
     (v) => v.status === 'ready' || v.status === 'in-use' || v.status === 'reserved'
   ).length;
   const availabilityPct = vehicles.length ? Math.round((availableCount / vehicles.length) * 100) : 0;
 
-  const unplannedCount = jobs.filter((j) => !j.planned).length;
-  const unplannedPct = jobs.length ? Math.round((unplannedCount / jobs.length) * 100) : 0;
+  const completedJobs = jobs.filter((j) => j.status === 'completed');
+  const unplannedCount = completedJobs.filter((j) => !j.planned).length;
+  const unplannedPct = completedJobs.length
+    ? Math.round((unplannedCount / completedJobs.length) * 100)
+    : 0;
 
   const completedWithTime = jobs.filter(
     (j) => j.status === 'completed' && j.completedAt && (j.startedAt || j.createdAt)
@@ -63,14 +78,7 @@ export function computeDashboardData(fleet: FleetData): DashboardData {
     mttrDays = Math.round((totalDays / completedWithTime.length) * 10) / 10;
   }
 
-  const completedPlanned = jobs.filter((j) => j.status === 'completed' && j.planned && j.dueDate);
-  const completedPlannedOnTime = completedPlanned.filter(
-    (j) => j.completedAt && new Date(j.completedAt) <= new Date(j.dueDate!)
-  );
-  const pmCompliancePct =
-    completedPlanned.length > 0
-      ? Math.round((completedPlannedOnTime.length / completedPlanned.length) * 100)
-      : null;
+  const pmCompliancePct = computePmCompliancePct(vehicles, jobs);
 
   const repairTrendByComponent = jobs.reduce<Record<string, number>>((acc, j) => {
     const c = j.component ?? 'other';
@@ -84,7 +92,8 @@ export function computeDashboardData(fleet: FleetData): DashboardData {
       vehiclesByStatus: byStatus,
       openJobsCount: openJobs.length,
       openJobsByPriority: byPriority,
-      partsOnOrderCount: partsOnOrder.length
+      partsOnOrderCount: partsOnOrder.length,
+      partsByStatus
     },
     availabilityPct,
     unplannedPct,

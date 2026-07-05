@@ -4,10 +4,9 @@ import { appendAndQueueEvent } from './syncPipeline';
 
 const ACTOR = 'local-operator';
 
-/** Blocking maintenance for demo: critical open work or waiting on parts. */
+/** Any non-completed job blocks owner availability per maintenance-job spec. */
 export function isBlockingJob(job: MaintenanceJob): boolean {
-  if (job.status === 'completed') return false;
-  return job.priority === 'critical' || job.status === 'waiting-parts';
+  return job.status !== 'completed';
 }
 
 /**

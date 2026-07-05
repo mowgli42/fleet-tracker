@@ -1,5 +1,6 @@
 import type { FleetData } from '$lib/stores/fleetData';
 import type { MaintenanceJob, Vehicle } from '$lib/types/fleet';
+import { criticalPartsFromOrders } from '$lib/parts/partsInventoryRules';
 
 export type SiteInfo = {
   id: string;
@@ -68,11 +69,25 @@ export type CriticalPartRow = {
   openJobCount: number;
 };
 
-/** Aggregate parts from open jobs' partsRequired across sites (demo heuristic). */
+/** Aggregate parts from critical-job PartOrders and partsRequired strings across sites. */
 export function criticalPartsAcrossSites(fleet: FleetData, minJobs = 1): CriticalPartRow[] {
-  const open = fleet.jobs.filter((j) => j.status !== 'completed');
   const byPart = new Map<string, { sites: Set<string>; jobs: number }>();
 
+  for (const row of criticalPartsFromOrders(fleet.parts, fleet.jobs)) {
+    const job = fleet.jobs.find((j) => j.id === row.jobId);
+    if (!job) continue;
+    const site = SITES.find((s) => s.vehicleIds.includes(job.vehicleId));
+    const siteName = site?.name ?? 'Unknown';
+    let entry = byPart.get(row.partName);
+    if (!entry) {
+      entry = { sites: new Set(), jobs: 0 };
+      byPart.set(row.partName, entry);
+    }
+    entry.sites.add(siteName);
+    entry.jobs += 1;
+  }
+
+  const open = fleet.jobs.filter((j) => j.status !== 'completed');
   for (const job of open) {
     const site = SITES.find((s) => s.vehicleIds.includes(job.vehicleId));
     const siteName = site?.name ?? 'Unknown';

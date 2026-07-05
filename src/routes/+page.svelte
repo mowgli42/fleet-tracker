@@ -37,10 +37,11 @@
     high: { bg: '#fef3c7', textColor: '#92400e' },
     critical: { bg: '#fee2e2', textColor: '#991b1b' }
   };
-  const partStatusOrder = ['ordered', 'shipped'] as const;
+  const partStatusOrder = ['ordered', 'shipped', 'received'] as const;
   const partStatusColors: Record<string, { bg: string; textColor: string }> = {
     ordered: { bg: '#f1f5f9', textColor: '#475569' },
-    shipped: { bg: '#dbeafe', textColor: '#1e40af' }
+    shipped: { bg: '#dbeafe', textColor: '#1e40af' },
+    received: { bg: '#dcfce7', textColor: '#166534' }
   };
 
   const vehicleSegments = $derived(
@@ -59,17 +60,10 @@
       textColor: priorityColors[priority].textColor
     }))
   );
-  const partsByStatus = $derived.by(() => {
-    const map: Record<string, number> = {};
-    for (const p of dashboardData.partsOnOrder) {
-      map[p.status] = (map[p.status] ?? 0) + 1;
-    }
-    return map;
-  });
   const partSegments = $derived(
     partStatusOrder.map((status) => ({
       label: status.charAt(0).toUpperCase() + status.slice(1),
-      count: partsByStatus[status] ?? 0,
+      count: dashboardData.summary.partsByStatus[status] ?? 0,
       bg: partStatusColors[status].bg,
       textColor: partStatusColors[status].textColor
     }))

@@ -81,8 +81,6 @@ Follow this order unless the user explicitly requests a different approach.
 | Site transfer (P2) | `openspec/specs/site-transfer/spec.md` |
 | Production (P3) | `auth-access-control`, `data-lifecycle`, `driver-status-board`, `inspections-compliance` |
 
-**Pending archive:** change `add-offline-sync-phase1` (content promoted to living `offline-sync` + `fleet-availability` specs).
-
 ## Communication rules
 
 - Before implementation: run `bd ready` and state what you are working on.

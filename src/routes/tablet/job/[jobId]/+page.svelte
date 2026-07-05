@@ -3,6 +3,14 @@
   import { page } from '$app/stores';
   import TabletWorkflowStepper from '$lib/components/tablet/TabletWorkflowStepper.svelte';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
+  import { emitMaintenanceJobDelta } from '$lib/sync/emitMaintenance';
+  import { refreshSyncSnapshot } from '$lib/stores/syncRuntime';
+  import {
+    canCompleteReturnToService,
+    canStartShopWork,
+    isRtsChecklistComplete,
+    partsCompleteForJob
+  } from '$lib/tablet/tabletJobWorkflowRules';
   import type { MaintenanceJob, PartOrder, PartOrderStatus } from '$lib/types/fleet';
   import { get } from 'svelte/store';
 
@@ -27,25 +35,22 @@
 
   const maintenanceSteps = [{ label: 'Incoming parts' }, { label: 'Shop work' }, { label: 'Return to service' }];
 
-  const partsComplete = $derived.by(() => {
-    const linked = fleet.parts.filter((p) => p.maintenanceJobId === jobId);
-    if (linked.length === 0) return true;
-    return linked.every((p) => p.status === 'received');
-  });
+  const partsComplete = $derived(partsCompleteForJob(fleet.parts, jobId));
 
   const canStartWork = $derived.by(() => {
-    if (!job || job.status === 'completed') return false;
-    if (job.status === 'in-progress') return false;
-    return partsComplete || partsOverride;
+    if (!job) return false;
+    return canStartShopWork(job, fleet.parts, partsOverride);
   });
 
-  const rtsChecklistComplete = $derived(
-    ckPostRepairInspection &&
-      ckFluidsVerified &&
-      ckTorqueSafety &&
-      ckTestDrive &&
-      ckPaperworkKeys
-  );
+  const rtsChecklist = $derived({
+    postRepairInspection: ckPostRepairInspection,
+    fluidsVerified: ckFluidsVerified,
+    torqueSafety: ckTorqueSafety,
+    testDrive: ckTestDrive,
+    paperworkKeys: ckPaperworkKeys
+  });
+
+  const rtsChecklistComplete = $derived(isRtsChecklistComplete(rtsChecklist));
 
   function advancePart(po: PartOrder) {
     const next: Record<PartOrderStatus, PartOrderStatus | null> = {
@@ -137,11 +142,11 @@
   }
 
   function completeReturnToService() {
-    if (!rtsChecklistComplete) return;
+    if (!job || !canCompleteReturnToService(job, rtsChecklist)) return;
     const fleetNow = get(fleetDataStore);
     const jNow = fleetNow.jobs.find((x) => x.id === jobId);
     const vNow = jNow ? fleetNow.vehicles.find((v) => v.id === jNow.vehicleId) : undefined;
-    if (!jNow || !vNow || jNow.status !== 'in-progress') return;
+    if (!jNow || !vNow) return;
     const today = new Date().toISOString().slice(0, 10);
     const completed: MaintenanceJob = {
       ...jNow,
@@ -156,13 +161,15 @@
     const vehicles = fleetNow.vehicles.map((v) => {
       if (v.id !== vNow.id) return v;
       if (v.currentJobId && v.currentJobId !== jNow.id) return v;
-      return { ...v, status: 'ready' as const, currentJobId: undefined };
+      return { ...v, status: 'ready' as const, currentJobId: undefined, releasedAt: today };
     });
     saveFleetData({
       ...fleetNow,
       jobs: fleetNow.jobs.map((j) => (j.id === jNow.id ? completed : j)),
       vehicles
     });
+    emitMaintenanceJobDelta(jNow, completed);
+    refreshSyncSnapshot();
     goto(`/tablet/vehicle/${vNow.id}`);
   }
 

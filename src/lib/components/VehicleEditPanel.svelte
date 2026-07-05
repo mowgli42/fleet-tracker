@@ -1,7 +1,14 @@
 <script lang="ts">
-  import type { Vehicle, VehicleStatus, VehicleRole, MaintenanceJob } from '$lib/types/fleet';
+  import type { Vehicle, VehicleStatus, VehicleRole } from '$lib/types/fleet';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
   import { findVehicleByVin, validateStatusChange } from '$lib/vehicle/vehicleRules';
+  import {
+    checkoutVehicle,
+    intakeVehicle,
+    releaseVehicle,
+    validateDirectStatusEdit,
+    findOpenJobForVehicle
+  } from '$lib/vehicle/vehicleLifecycleRules';
   import SlideToRemove from '$lib/components/SlideToRemove.svelte';
 
   const statusOptions: { value: VehicleStatus; label: string }[] = [
@@ -42,19 +49,16 @@
   });
 
   const fleet = $derived($fleetDataStore);
-  const openJobForVehicle = $derived(
-    fleet.jobs.find(
-      (j) => j.vehicleId === vehicle.id && j.status !== 'completed'
-    )
-  );
+  const openJobForVehicle = $derived(findOpenJobForVehicle(fleet.jobs, vehicle.id));
   const canRelease = $derived(!openJobForVehicle);
   const checkoutNeedsDriver = $derived(form.status === 'in-use' && !form.driver?.trim());
 
   function saveFields() {
-    const statusCheck = validateStatusChange(
+    const statusCheck = validateDirectStatusEdit(
       form.status,
       form.driver,
-      Boolean(openJobForVehicle) && form.status === 'ready'
+      fleet.jobs,
+      vehicle.id
     );
     if (!statusCheck.ok) {
       alert(statusCheck.message);
@@ -95,33 +99,15 @@
   }
 
   function doIntake() {
-    const now = new Date().toISOString().slice(0, 10);
-    const newJob: MaintenanceJob = {
-      id: 'mj-' + Math.random().toString(36).slice(2, 11),
-      vehicleId: vehicle.id,
-      title: 'Intake – maintenance',
-      description: 'Vehicle brought in for maintenance.',
-      priority: 'medium',
-      status: 'open',
-      createdAt: now,
-      updatedAt: now,
-      history: [{ date: now, note: 'Vehicle intake.', status: 'open' }],
-      planned: false,
-      odometerAtJobOpen: typeof form.odometer === 'number' ? form.odometer : parseInt(String(form.odometer), 10) || vehicle.odometer
-    };
-    const updatedJobs = [...fleet.jobs, newJob];
-    const updatedVehicles = fleet.vehicles.map((v) =>
-      v.id === vehicle.id
-        ? {
-            ...v,
-            ...formToVehicle(),
-            status: 'maintenance' as const,
-            intakeAt: now,
-            currentJobId: newJob.id
-          }
-        : v
-    );
-    saveFleetData({ ...fleet, vehicles: updatedVehicles, jobs: updatedJobs });
+    const odometer =
+      typeof form.odometer === 'number' ? form.odometer : parseInt(String(form.odometer), 10) || vehicle.odometer;
+    const result = intakeVehicle(vehicle, fleet.jobs, { odometer });
+    if (!result.ok) {
+      alert(result.message);
+      return;
+    }
+    const updatedVehicles = fleet.vehicles.map((v) => (v.id === vehicle.id ? { ...v, ...result.vehicle } : v));
+    saveFleetData({ ...fleet, vehicles: updatedVehicles, jobs: [...fleet.jobs, result.job] });
     onClose();
   }
 
@@ -139,47 +125,24 @@
   }
 
   function doCheckout() {
-    const check = validateStatusChange('in-use', form.driver, false);
-    if (!check.ok) {
-      alert(check.message);
+    const result = checkoutVehicle({ ...vehicle, ...formToVehicle() }, form.driver);
+    if (!result.ok) {
+      alert(result.message);
       return;
     }
-    const now = new Date().toISOString().slice(0, 10);
-    const updatedVehicles = fleet.vehicles.map((v) =>
-      v.id === vehicle.id
-        ? {
-            ...v,
-            ...formToVehicle(),
-            status: 'in-use' as const,
-            driver: form.driver.trim() || v.driver,
-            checkedOutAt: now,
-            currentJobId: undefined
-          }
-        : v
-    );
+    const updatedVehicles = fleet.vehicles.map((v) => (v.id === vehicle.id ? result.vehicle : v));
     saveFleetData({ ...fleet, vehicles: updatedVehicles });
     form = { ...form, status: 'in-use' };
     onClose();
   }
 
   function doRelease() {
-    const check = validateStatusChange('ready', form.driver, Boolean(openJobForVehicle));
-    if (!check.ok) {
-      alert(check.message);
+    const result = releaseVehicle({ ...vehicle, ...formToVehicle() }, fleet.jobs);
+    if (!result.ok) {
+      alert(result.message);
       return;
     }
-    const now = new Date().toISOString().slice(0, 10);
-    const updatedVehicles = fleet.vehicles.map((v) =>
-      v.id === vehicle.id
-        ? {
-            ...v,
-            ...formToVehicle(),
-            status: 'ready' as const,
-            releasedAt: now,
-            currentJobId: undefined
-          }
-        : v
-    );
+    const updatedVehicles = fleet.vehicles.map((v) => (v.id === vehicle.id ? result.vehicle : v));
     saveFleetData({ ...fleet, vehicles: updatedVehicles });
     form = { ...form, status: 'ready' };
     onClose();

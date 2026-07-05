@@ -1,5 +1,6 @@
 import type { EventEnvelope } from './eventTypes';
 import { isPmAtRiskFromVehicleNextService } from './pmWindow';
+import { foldTransfersMeta, isTransferStale, isVehicleInTransit } from './siteTransferRules';
 import { sortEventsForReplay } from './sortEvents';
 
 /** Owner-facing readiness (design doc). */
@@ -53,8 +54,11 @@ export function foldVehicleFlagsFromEvents(events: EventEnvelope[]): Map<string,
   return map;
 }
 
-export function readinessClassFromFlags(f: VehicleReadinessState): ReadinessClass {
-  if (f.maintenanceBlocked) return 'blocked';
+export function readinessClassFromFlags(
+  f: VehicleReadinessState,
+  options?: { inTransit?: boolean; transferStale?: boolean }
+): ReadinessClass {
+  if (f.maintenanceBlocked || options?.inTransit || options?.transferStale) return 'blocked';
   if (f.pmAtRisk) return 'at-risk';
   return 'ready';
 }
@@ -104,7 +108,13 @@ export function readinessForFleet(
       pmAtRisk = true;
     }
     const merged = { ...base, pmAtRisk };
-    const c = readinessClassFromFlags(merged);
+    const inTransit = isVehicleInTransit(cloudEvents, v.id);
+    const transferState = foldTransfersMeta(cloudEvents, v.id);
+    const transferStale =
+      inTransit && transferState?.createdAt
+        ? isTransferStale(transferState.createdAt)
+        : false;
+    const c = readinessClassFromFlags(merged, { inTransit, transferStale });
     byVehicle.set(v.id, c);
     counts[c] += 1;
   }
