@@ -12,7 +12,7 @@ import vehiclesData from '$lib/data/vehicles.json';
 import jobsData from '$lib/data/maintenance-jobs.json';
 import partsData from '$lib/data/parts-orders.json';
 
-const KEY = 'fleet-tracker-data';
+export const FLEET_DATA_STORAGE_KEY = 'fleet-tracker-data';
 
 export interface FleetData {
   vehicles: Vehicle[];
@@ -37,7 +37,7 @@ const base: FleetData = {
 function loadFromStorage(): FleetData | null {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = window.localStorage.getItem(KEY);
+    const raw = window.localStorage.getItem(FLEET_DATA_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as FleetData;
     if (
@@ -69,18 +69,22 @@ function getInitial(): FleetData {
 
 export const fleetDataStore = writable<FleetData>(base);
 
-/** Call once on client (e.g. layout onMount) to replace store with localStorage data if present. */
-export function initFleetDataFromStorage(): void {
+/** Hydrate the fleet store from localStorage or seed JSON (call after demo bootstrap). */
+export function bootstrapFleetData(): void {
   if (typeof window === 'undefined') return;
-  const stored = loadFromStorage();
-  if (stored) fleetDataStore.set(stored);
+  fleetDataStore.set(loadFromStorage() ?? { ...base });
+}
+
+/** @deprecated Use bootstrapFleetData via initClientApp. */
+export function initFleetDataFromStorage(): void {
+  bootstrapFleetData();
 }
 
 /** Persist current data to localStorage. Call after any edit. */
 export function saveFleetData(data: FleetData): void {
   fleetDataStore.set(data);
   if (typeof window !== 'undefined') {
-    window.localStorage.setItem(KEY, JSON.stringify(data));
+    window.localStorage.setItem(FLEET_DATA_STORAGE_KEY, JSON.stringify(data));
   }
 }
 
@@ -89,8 +93,3 @@ export function getBaseFleetData(): FleetData {
   return { ...base };
 }
 
-// On client, sync from localStorage as soon as store module is evaluated
-if (typeof window !== 'undefined') {
-  const stored = loadFromStorage();
-  if (stored) fleetDataStore.set(stored);
-}

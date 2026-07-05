@@ -1,11 +1,5 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { onMount } from 'svelte';
-  import { initFleetDataFromStorage } from '$lib/stores/fleetData';
-
-  onMount(() => {
-    initFleetDataFromStorage();
-  });
 </script>
 
 <div class="proto-tablet min-h-screen pb-[5.5rem]">

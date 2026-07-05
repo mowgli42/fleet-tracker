@@ -3,10 +3,14 @@
   import { page } from '$app/stores';
   import '../app.css';
   import SyncStatusBar from '$lib/components/SyncStatusBar.svelte';
-  import { initSyncRuntime } from '$lib/stores/syncRuntime';
+  import DemoBanner from '$lib/components/DemoBanner.svelte';
+  import { initClientApp } from '$lib/demo/clientBootstrap';
+  import { isDemoMode } from '$lib/demo/demoMode';
+
+  const demoMode = isDemoMode();
 
   onMount(() => {
-    initSyncRuntime();
+    initClientApp();
   });
 
   $: isPrototypeShell =
@@ -26,6 +30,9 @@
 </script>
 
 <a href="#main-content" class="skip-link">Skip to main content</a>
+{#if demoMode}
+  <DemoBanner />
+{/if}
 {#if isPrototypeShell}
   <slot />
 {:else}

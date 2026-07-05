@@ -1,10 +1,3 @@
-<script lang="ts">
-  import { onMount } from 'svelte';
-  import { initFleetDataFromStorage } from '$lib/stores/fleetData';
-
-  onMount(() => initFleetDataFromStorage());
-</script>
-
 <div class="proto-cloud min-h-screen">
   <header class="cloud-header sticky top-0 z-30 px-4 py-3">
     <div class="mx-auto flex max-w-6xl items-center justify-between gap-4">

@@ -5,10 +5,13 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
   preprocess: vitePreprocess(),
   kit: {
-    adapter: adapter(),
+    adapter: adapter({
+      fallback: 'index.html'
+    }),
     prerender: {
       // Links like /maintenance#job-xxx point to rows that may not exist in prerendered HTML (data from store).
-      handleMissingId: () => {}
+      handleMissingId: () => {},
+      handleUnseenRoutes: 'ignore'
     }
   }
 };

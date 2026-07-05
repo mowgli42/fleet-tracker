@@ -39,6 +39,25 @@ npm run preview
 
 Output is in the `build/` directory.
 
+## Deploy demo on Vercel (Option A)
+
+Static hosting with **per-browser daily reset** (no shared server state). Each visitor gets seed JSON from the build; edits persist in `localStorage` until UTC midnight or manual reset.
+
+1. Import the GitHub repo in [Vercel](https://vercel.com).
+2. Framework preset: **Other** (or SvelteKit with output `build/`).
+3. Build command: `npm run build` · Output directory: `build` (also in `vercel.json`).
+4. Environment variable: `VITE_DEMO_MODE` = `true` (Production and Preview).
+5. Deploy. The amber demo banner offers **Reset demo** anytime.
+
+Local preview with demo mode:
+
+```bash
+VITE_DEMO_MODE=true npm run build
+VITE_DEMO_MODE=true npm run preview
+```
+
+Optional: `VITE_SYNC_API_URL` for a remote sync API (not required for the static demo).
+
 ## Features
 
 - **Dashboard** – Summary cards with stacked bar charts (vehicles by status, open jobs by priority, parts by status; colors match badges), availability metrics (fleet %, unplanned %, MTTR, PM compliance), repair trend by component chart, urgent maintenance and parts tables
