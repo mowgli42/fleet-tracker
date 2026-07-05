@@ -31,10 +31,7 @@ export function foldTransfersFromEvents(events: EventEnvelope[]): Map<string, Tr
         applied: false
       });
     } else if (e.event_type === 'transfer_applied') {
-      const existing = map.get(vehicleId);
-      if (existing && existing.transferId === String(p.transferId ?? e.entity_id)) {
-        map.delete(vehicleId);
-      }
+      map.delete(vehicleId);
     }
   }
   return map;

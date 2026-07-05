@@ -136,3 +136,45 @@ export interface PartOrder {
   /** Quantity used on linked job (configuration / cost) */
   quantityUsed?: number;
 }
+
+/** DVIR / pre-trip inspection record (Phase 3). */
+export interface InspectionItem {
+  id: string;
+  label: string;
+  passed: boolean;
+  critical?: boolean;
+}
+
+export interface InspectionRecord {
+  id: string;
+  vehicleId: string;
+  inspectedAt: string;
+  inspectorRole?: string;
+  items: InspectionItem[];
+  passed: boolean;
+}
+
+export interface DefectRecord {
+  id: string;
+  vehicleId: string;
+  inspectionId: string;
+  title: string;
+  critical: boolean;
+  maintenanceJobId?: string;
+}
+
+/** Unguessable driver tracking token for read-only status board. */
+export interface DriverTrackingToken {
+  token: string;
+  vehicleId: string;
+  driverName?: string;
+  createdAt: string;
+}
+
+export type UserRole = 'admin' | 'shop_manager' | 'technician' | 'driver';
+
+export interface FleetArchive {
+  vehicles: Vehicle[];
+  jobs: MaintenanceJob[];
+  archivedAt: string;
+}

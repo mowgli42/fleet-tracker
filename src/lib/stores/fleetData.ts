@@ -1,5 +1,13 @@
 import { writable } from 'svelte/store';
-import type { Vehicle, MaintenanceJob, PartOrder, Obd2Snapshot } from '$lib/types/fleet';
+import type {
+  Vehicle,
+  MaintenanceJob,
+  PartOrder,
+  Obd2Snapshot,
+  InspectionRecord,
+  DefectRecord,
+  DriverTrackingToken
+} from '$lib/types/fleet';
 import vehiclesData from '$lib/data/vehicles.json';
 import jobsData from '$lib/data/maintenance-jobs.json';
 import partsData from '$lib/data/parts-orders.json';
@@ -11,13 +19,19 @@ export interface FleetData {
   jobs: MaintenanceJob[];
   parts: PartOrder[];
   obd2Snapshots: Obd2Snapshot[];
+  inspections: InspectionRecord[];
+  defects: DefectRecord[];
+  trackingTokens: DriverTrackingToken[];
 }
 
 const base: FleetData = {
   vehicles: vehiclesData as Vehicle[],
   jobs: jobsData as MaintenanceJob[],
   parts: partsData as PartOrder[],
-  obd2Snapshots: []
+  obd2Snapshots: [],
+  inspections: [],
+  defects: [],
+  trackingTokens: []
 };
 
 function loadFromStorage(): FleetData | null {
@@ -36,7 +50,10 @@ function loadFromStorage(): FleetData | null {
         vehicles: parsed.vehicles,
         jobs: parsed.jobs,
         parts: parsed.parts,
-        obd2Snapshots: parsed.obd2Snapshots ?? []
+        obd2Snapshots: parsed.obd2Snapshots ?? [],
+        inspections: parsed.inspections ?? [],
+        defects: parsed.defects ?? [],
+        trackingTokens: parsed.trackingTokens ?? []
       };
     }
   } catch (_) {
@@ -47,7 +64,7 @@ function loadFromStorage(): FleetData | null {
 
 function getInitial(): FleetData {
   const stored = loadFromStorage();
-  return stored ?? { ...base, obd2Snapshots: [] };
+  return stored ?? { ...base };
 }
 
 export const fleetDataStore = writable<FleetData>(base);
@@ -69,7 +86,7 @@ export function saveFleetData(data: FleetData): void {
 
 /** Get base data for SSR / initial load (no localStorage). */
 export function getBaseFleetData(): FleetData {
-  return { ...base, obd2Snapshots: [] };
+  return { ...base };
 }
 
 // On client, sync from localStorage as soon as store module is evaluated

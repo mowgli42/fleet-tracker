@@ -2,13 +2,8 @@
   import type { Vehicle, VehicleStatus, VehicleRole } from '$lib/types/fleet';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
   import { findVehicleByVin, validateStatusChange } from '$lib/vehicle/vehicleRules';
-  import {
-    checkoutVehicle,
-    intakeVehicle,
-    releaseVehicle,
-    validateDirectStatusEdit,
-    findOpenJobForVehicle
-  } from '$lib/vehicle/vehicleLifecycleRules';
+  import { checkoutVehicle, intakeVehicle, releaseVehicle, validateDirectStatusEdit, findOpenJobForVehicle } from '$lib/vehicle/vehicleLifecycleRules';
+  import { createTrackingToken } from '$lib/driver/driverStatusBoardRules';
   import SlideToRemove from '$lib/components/SlideToRemove.svelte';
 
   const statusOptions: { value: VehicleStatus; label: string }[] = [
@@ -131,7 +126,12 @@
       return;
     }
     const updatedVehicles = fleet.vehicles.map((v) => (v.id === vehicle.id ? result.vehicle : v));
-    saveFleetData({ ...fleet, vehicles: updatedVehicles });
+    const token = createTrackingToken(vehicle.id, form.driver.trim());
+    saveFleetData({
+      ...fleet,
+      vehicles: updatedVehicles,
+      trackingTokens: [...(fleet.trackingTokens ?? []), token]
+    });
     form = { ...form, status: 'in-use' };
     onClose();
   }

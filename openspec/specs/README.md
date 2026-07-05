@@ -27,20 +27,20 @@ Specs are informed by fleet maintenance best practices:
 | [dashboard-analytics](dashboard-analytics/spec.md) | 1 | `/` | `features/dashboard-analytics.feature` |
 | [offline-sync](offline-sync/spec.md) | 1 | `src/lib/sync/` | `features/offline-sync.feature` |
 | [fleet-availability](fleet-availability/spec.md) | 1 | `/sync`, shell | (covered in offline-sync + availability) |
-| [sync-operations-ui](sync-operations-ui/spec.md) | 1 | `/sync` | manual / E2E |
+| [sync-operations-ui](sync-operations-ui/spec.md) | 1 | `/sync` | `features/sync-operations-ui.feature` |
 | [tablet-shop-floor](tablet-shop-floor/spec.md) | 1 demo | `/tablet/intake` | `features/tablet-shop-floor.feature` |
 | [tablet-job-workflow](tablet-job-workflow/spec.md) | 1 demo | `/tablet/job/[id]` | `features/tablet-job-workflow.feature` |
-| [cloud-multi-site](cloud-multi-site/spec.md) | 1 demo | `/cloud` | manual |
+| [cloud-multi-site](cloud-multi-site/spec.md) | 1 demo | `/cloud` | `features/cloud-multi-site.feature` |
 | [site-transfer](site-transfer/spec.md) | 2 | sync events | `features/site-transfer.feature` |
 
-### Phase 3 (production — spec only, not implemented)
+### Phase 3 (production — domain rules + Gherkin; full infra deferred)
 
-| Capability | Notes |
-|------------|-------|
-| [auth-access-control](auth-access-control/spec.md) | RBAC, site keys → production auth |
-| [data-lifecycle](data-lifecycle/spec.md) | Backup, archive sold/retired assets |
-| [driver-status-board](driver-status-board/spec.md) | Public assignment tracking URLs |
-| [inspections-compliance](inspections-compliance/spec.md) | DVIR / pre-trip, defect → work order |
+| Capability | Route / surface | Gherkin feature |
+|------------|-----------------|-----------------|
+| [auth-access-control](auth-access-control/spec.md) | domain module | `features/auth-access-control.feature` |
+| [data-lifecycle](data-lifecycle/spec.md) | domain module | `features/data-lifecycle.feature` |
+| [driver-status-board](driver-status-board/spec.md) | `/track/[token]` | `features/driver-status-board.feature` |
+| [inspections-compliance](inspections-compliance/spec.md) | domain + history | `features/inspections-compliance.feature` |
 
 ## Workflow
 

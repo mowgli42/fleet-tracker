@@ -7,6 +7,7 @@
     SITES,
     type SiteHealthRollup
   } from '$lib/data/multiSiteDemo';
+  import { CLOUD_DEMO_DISCLAIMER, isDemoCloudRollup } from '$lib/cloud/cloudMultiSiteRules';
   import { fleetDataStore } from '$lib/stores/fleetData';
   import { get } from 'svelte/store';
 
@@ -30,6 +31,12 @@
 </script>
 
 <div class="space-y-8">
+  <div class="rounded-lg border px-4 py-3 text-sm" style="border-color: var(--cloud-border); color: var(--cloud-muted);">
+    {#if isDemoCloudRollup()}
+      <strong style="color: var(--cloud-text);">Demo rollup.</strong> {CLOUD_DEMO_DISCLAIMER}
+    {/if}
+  </div>
+
   <div class="flex flex-wrap items-end justify-between gap-4">
     <div>
       <h1 class="font-display text-2xl font-semibold" style="color: var(--cloud-text);">Fleet overview</h1>

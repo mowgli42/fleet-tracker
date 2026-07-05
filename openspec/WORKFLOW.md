@@ -79,6 +79,10 @@ Follow this order unless the user explicitly requests a different approach.
 | Tablet jobs | `openspec/specs/tablet-job-workflow/spec.md` |
 | Cloud demo | `openspec/specs/cloud-multi-site/spec.md` |
 | Site transfer (P2) | `openspec/specs/site-transfer/spec.md` |
+| Vehicle history | `openspec/specs/vehicle-history/spec.md` |
+| Sync operations UI | `openspec/specs/sync-operations-ui/spec.md` |
+| Tablet shop floor | `openspec/specs/tablet-shop-floor/spec.md` |
+| Cloud multi-site | `openspec/specs/cloud-multi-site/spec.md` |
 | Production (P3) | `auth-access-control`, `data-lifecycle`, `driver-status-board`, `inspections-compliance` |
 
 ## Communication rules

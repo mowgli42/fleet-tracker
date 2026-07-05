@@ -9,6 +9,7 @@
     syncSnapshot
   } from '$lib/stores/syncRuntime';
   import { buildSyncStatusReport, type SyncStatusReport } from '$lib/sync/syncStatusReport';
+  import { projectionSourceDescription, projectionSourceLabel } from '$lib/sync/syncOperationsRules';
   import StackedBar from '$lib/components/StackedBar.svelte';
 
   let report = $state<SyncStatusReport | null>(null);
@@ -109,10 +110,10 @@
     <h2 id="owner-availability-heading" class="font-display text-base font-semibold mb-2">Owner availability</h2>
     <p class="text-xs text-muted mb-3 max-w-3xl">
       Ready / at-risk / blocked from the
-      <strong>{$syncSnapshot.projectionSource === 'local' ? 'local event log' : 'cloud projection'}</strong>
+      <strong>{projectionSourceLabel($syncSnapshot.projectionSource)}</strong>
       ({$syncSnapshot.projectionSource === 'local'
-        ? 'site view during outage'
-        : 'accepted events + PM rules'}).
+        ? projectionSourceDescription('local')
+        : projectionSourceDescription('cloud')}).
       {#if $syncSnapshot.pendingOutbox > 0}
         <span class="text-amber-900 font-medium">
           {$syncSnapshot.pendingOutbox} event(s) still queued locally.</span>

@@ -10,7 +10,9 @@
   });
 
   $: isPrototypeShell =
-    $page.url.pathname.startsWith('/tablet') || $page.url.pathname.startsWith('/cloud');
+    $page.url.pathname.startsWith('/tablet') ||
+    $page.url.pathname.startsWith('/cloud') ||
+    $page.url.pathname.startsWith('/track');
 
   const navItems = [
     { href: '/', label: 'Dashboard' },

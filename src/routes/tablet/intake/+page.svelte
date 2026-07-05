@@ -1,82 +1,68 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import TabletWorkflowStepper from '$lib/components/tablet/TabletWorkflowStepper.svelte';
-  import type { JobPriority, MaintenanceJob } from '$lib/types/fleet';
+  import type { JobPriority } from '$lib/types/fleet';
   import { get } from 'svelte/store';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
+  import {
+    completeTabletIntake,
+    incompleteCriticalChecklist,
+    INTAKE_STEPS,
+    intakeStepIndex,
+    searchVehiclesForIntake,
+    type IntakeChecklist
+  } from '$lib/tablet/tabletShopFloorRules';
 
-  const intakeSteps = [{ label: 'Identify' }, { label: 'Inspect' }, { label: 'Follow-up' }];
+  const intakeSteps = INTAKE_STEPS.map((s) => ({ label: s.charAt(0).toUpperCase() + s.slice(1) }));
 
   let step = $state(1);
   let selectedId = $state<string | null>(null);
   let vinQuery = $state('');
 
-  let ckTires = $state(false);
-  let ckLights = $state(false);
-  let ckFluids = $state(false);
-  let ckBrakes = $state(false);
-  let ckBody = $state(false);
+  let checklist = $state<IntakeChecklist>({
+    tires: false,
+    lights: false,
+    fluids: false,
+    brakes: false,
+    body: false
+  });
 
   let flagMaintenance = $state(false);
   let issueTitle = $state('');
   let issuePriority = $state<JobPriority>('medium');
   let pullForService = $state(false);
+  let checklistWarning = $state<string | null>(null);
 
   const fleet = $derived.by(() => get(fleetDataStore));
 
-  const filtered = $derived.by(() => {
-    const q = vinQuery.trim().toLowerCase();
-    if (!q) return fleet.vehicles;
-    return fleet.vehicles.filter(
-      (v) =>
-        v.name.toLowerCase().includes(q) ||
-        v.id.toLowerCase().includes(q) ||
-        (v.vin && v.vin.toLowerCase().includes(q))
-    );
-  });
+  const filtered = $derived(searchVehiclesForIntake(fleet.vehicles, vinQuery));
 
   function selectVehicle(id: string) {
     selectedId = id;
     step = 2;
   }
 
+  function continueToFollowUp() {
+    const missing = incompleteCriticalChecklist(checklist);
+    checklistWarning = missing.length > 0 ? `Critical items unchecked: ${missing.join(', ')}` : null;
+    step = 3;
+  }
+
   function completeInspection() {
     if (!selectedId) return;
-    const fleet = get(fleetDataStore);
-    const today = new Date().toISOString().slice(0, 10);
-    let vehicles = fleet.vehicles.map((v) =>
-      v.id === selectedId ? { ...v, intakeAt: v.intakeAt ?? today } : v
-    );
-    let jobs = [...fleet.jobs];
-    const openJob = flagMaintenance && issueTitle.trim();
-    if (openJob) {
-      const id = `mj-intake-${Date.now()}`;
-      const job: MaintenanceJob = {
-        id,
-        vehicleId: selectedId,
-        title: issueTitle.trim(),
-        description: 'Reported during tablet intake inspection.',
-        priority: issuePriority,
-        status: 'open',
-        createdAt: today,
-        updatedAt: today,
-        planned: false,
-        component: 'other',
-        serviceType: 'inspection',
-        history: [{ date: today, note: 'Opened from intake workflow.', status: 'open' }]
-      };
-      jobs = [...jobs, job];
-      if (pullForService) {
-        vehicles = vehicles.map((v) =>
-          v.id === selectedId ? { ...v, currentJobId: id, status: 'maintenance' as const } : v
-        );
-      }
-    } else if (pullForService) {
-      vehicles = vehicles.map((v) =>
-        v.id === selectedId ? { ...v, status: 'maintenance' as const } : v
-      );
-    }
-    saveFleetData({ ...fleet, vehicles, jobs });
+    const fleetNow = get(fleetDataStore);
+    const vehicle = fleetNow.vehicles.find((v) => v.id === selectedId);
+    if (!vehicle) return;
+    const result = completeTabletIntake({
+      vehicle,
+      jobs: fleetNow.jobs,
+      checklist,
+      flagMaintenance,
+      issueTitle,
+      pullForService
+    });
+    const vehicles = fleetNow.vehicles.map((v) => (v.id === selectedId ? result.vehicle : v));
+    saveFleetData({ ...fleetNow, vehicles, jobs: result.jobs });
     goto(`/tablet/vehicle/${selectedId}`);
   }
 </script>
@@ -89,7 +75,7 @@
     </p>
   </div>
 
-  <TabletWorkflowStepper steps={intakeSteps} current={step - 1} ariaLabel="Intake workflow progress" />
+  <TabletWorkflowStepper steps={intakeSteps} current={intakeStepIndex(step)} ariaLabel="Intake workflow progress" />
 
   {#if step === 1}
     <div class="proto-card space-y-3 p-4">
@@ -129,33 +115,38 @@
       <p class="text-xs font-medium uppercase tracking-wide" style="color: var(--proto-muted);">Inspection checklist</p>
       <div class="space-y-2">
         <label class="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2" style="border-color: var(--proto-border);">
-          <input type="checkbox" bind:checked={ckTires} class="h-5 w-5 rounded border-slate-500" />
+          <input type="checkbox" bind:checked={checklist.tires} class="h-5 w-5 rounded border-slate-500" />
           <span class="text-sm" style="color: var(--proto-text);">Tires</span>
         </label>
         <label class="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2" style="border-color: var(--proto-border);">
-          <input type="checkbox" bind:checked={ckLights} class="h-5 w-5 rounded border-slate-500" />
+          <input type="checkbox" bind:checked={checklist.lights} class="h-5 w-5 rounded border-slate-500" />
           <span class="text-sm" style="color: var(--proto-text);">Lights</span>
         </label>
         <label class="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2" style="border-color: var(--proto-border);">
-          <input type="checkbox" bind:checked={ckFluids} class="h-5 w-5 rounded border-slate-500" />
+          <input type="checkbox" bind:checked={checklist.fluids} class="h-5 w-5 rounded border-slate-500" />
           <span class="text-sm" style="color: var(--proto-text);">Fluids</span>
         </label>
         <label class="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2" style="border-color: var(--proto-border);">
-          <input type="checkbox" bind:checked={ckBrakes} class="h-5 w-5 rounded border-slate-500" />
+          <input type="checkbox" bind:checked={checklist.brakes} class="h-5 w-5 rounded border-slate-500" />
           <span class="text-sm" style="color: var(--proto-text);">Brakes</span>
         </label>
         <label class="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2" style="border-color: var(--proto-border);">
-          <input type="checkbox" bind:checked={ckBody} class="h-5 w-5 rounded border-slate-500" />
+          <input type="checkbox" bind:checked={checklist.body} class="h-5 w-5 rounded border-slate-500" />
           <span class="text-sm" style="color: var(--proto-text);">Body / glass</span>
         </label>
       </div>
       <div class="flex gap-2 pt-2">
         <button type="button" class="proto-btn-ghost flex-1" onclick={() => (step = 1)}>Back</button>
-        <button type="button" class="proto-btn-primary flex-1" onclick={() => (step = 3)}>Continue</button>
+        <button type="button" class="proto-btn-primary flex-1" onclick={continueToFollowUp}>Continue</button>
       </div>
     </div>
   {:else}
     <div class="proto-card space-y-4 p-4">
+      {#if checklistWarning}
+        <p class="m-0 text-sm rounded-md px-3 py-2" style="color: var(--proto-warn); border: 1px solid var(--proto-border);">
+          {checklistWarning}
+        </p>
+      {/if}
       <p class="text-xs font-medium uppercase tracking-wide" style="color: var(--proto-muted);">Follow-up</p>
       <label class="flex cursor-pointer items-center gap-3">
         <input type="checkbox" bind:checked={flagMaintenance} class="h-5 w-5" />
@@ -187,7 +178,7 @@
       {/if}
       <label class="flex cursor-pointer items-center gap-3">
         <input type="checkbox" bind:checked={pullForService} class="h-5 w-5" />
-        <span class="text-sm" style="color: var(--proto-text);">Pull for service (sets maintenance when a job is created, or status only)</span>
+        <span class="text-sm" style="color: var(--proto-text);">Pull for service (applies vehicle lifecycle intake)</span>
       </label>
       <div class="flex gap-2 pt-2">
         <button type="button" class="proto-btn-ghost flex-1" onclick={() => (step = 2)}>Back</button>
