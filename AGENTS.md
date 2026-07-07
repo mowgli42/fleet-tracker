@@ -2,6 +2,22 @@
 
 - When README or docs show UI screenshots, keep image paths consistent with where files are committed (e.g. `docs/` vs `screenshots/`) and regenerate screenshots after substantive UI changes.
 
+## OpenSpec + Gherkin + Beads workflow
+
+**Full workflow:** `openspec/WORKFLOW.md`
+
+This project uses [OpenSpec](https://github.com/Fission-AI/OpenSpec) with Gherkin verification and [Beads](https://github.com/steveyegge/beads) for task tracking.
+
+**Before implementing features:**
+- Read `openspec/WORKFLOW.md` and relevant `openspec/specs/<capability>/spec.md`
+- Run `bd ready` and announce the issue you are taking
+- Treat `#### Scenario:` blocks as the behavioral contract; mirror them in `features/*.feature`
+
+**Workflow:** spec → Beads issues → implement → `npm test` + `npm run test:gherkin` → `/opsx:archive`
+
+**Living specs:** `openspec/specs/vehicle/spec.md`  
+**Active change (sync):** `add-offline-sync-phase1`
+
 ## Learned Workspace Facts
 
 - fleet-tracker is SvelteKit (Svelte 5) with TypeScript, Tailwind CSS, and `@sveltejs/adapter-static` for a prerendered static site (`npm run build`).

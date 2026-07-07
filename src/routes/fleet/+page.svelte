@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
+  import { filterVehicles } from '$lib/vehicle/vehicleRules';
   import VehicleEditPanel from '$lib/components/VehicleEditPanel.svelte';
   import VehicleDetailPanel from '$lib/components/VehicleDetailPanel.svelte';
   import VehicleAddPanel from '$lib/components/VehicleAddPanel.svelte';
@@ -38,6 +39,7 @@
   ];
 
   let statusFilter = $state('');
+  let searchQuery = $state('');
   let viewMode = $state<'grid' | 'list'>('grid');
   let prevSearch = $state('');
 
@@ -50,36 +52,40 @@
   });
 
   const filtered = $derived.by(() =>
-    statusFilter
-      ? vehicles.filter((v) => v.status === statusFilter)
-      : vehicles
+    filterVehicles(vehicles, { status: statusFilter || undefined, query: searchQuery || undefined })
   );
 </script>
 
 <div class="fleet-page">
   <header class="page-header">
-    <div>
+    <div class="min-w-0">
       <h1>Fleet</h1>
       <p class="subtitle">Vehicle status and availability</p>
     </div>
-    <div class="flex flex-wrap items-center gap-3">
-      <button type="button" class="btn btn-primary text-sm" onclick={() => (showAddVehicle = true)}>Add vehicle</button>
-      <label class="flex items-center gap-2 text-sm text-muted">
+    <div class="page-toolbar">
+      <button type="button" class="btn btn-primary text-sm w-full sm:w-auto" onclick={() => (showAddVehicle = true)}>Add vehicle</button>
+      <label class="toolbar-field">
+        <span>Search</span>
+        <input
+          type="search"
+          bind:value={searchQuery}
+          placeholder="Name or VIN"
+          class="toolbar-input"
+          aria-label="Search vehicles by name or VIN"
+        />
+      </label>
+      <label class="toolbar-field">
         <span>Status</span>
-        <select
-          bind:value={statusFilter}
-          class="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-1.5 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-          aria-label="Filter by status"
-        >
+        <select bind:value={statusFilter} class="toolbar-select" aria-label="Filter by status">
           {#each statusOptions as opt}
             <option value={opt.value}>{opt.label}</option>
           {/each}
         </select>
       </label>
-      <div class="flex rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-0.5" role="group" aria-label="View mode">
+      <div class="flex rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] p-0.5 w-full sm:w-auto" role="group" aria-label="View mode">
         <button
           type="button"
-          class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 {viewMode === 'grid'
+          class="flex-1 sm:flex-none rounded-md px-3 py-2 sm:py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 {viewMode === 'grid'
             ? 'bg-slate-200 text-slate-900'
             : 'text-muted hover:bg-slate-100'}"
           onclick={() => (viewMode = 'grid')}
@@ -88,7 +94,7 @@
         </button>
         <button
           type="button"
-          class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 {viewMode === 'list'
+          class="flex-1 sm:flex-none rounded-md px-3 py-2 sm:py-1.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 {viewMode === 'list'
             ? 'bg-slate-200 text-slate-900'
             : 'text-muted hover:bg-slate-100'}"
           onclick={() => (viewMode = 'list')}

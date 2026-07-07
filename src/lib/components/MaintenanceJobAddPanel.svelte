@@ -1,6 +1,9 @@
 <script lang="ts">
-  import type { MaintenanceJob, JobPriority, JobStatus, ServiceType } from '$lib/types/fleet';
+  import { createMaintenanceJob, validateJobCreate } from '$lib/maintenance/maintenanceJobRules';
+  import type { JobPriority, JobStatus, ServiceType } from '$lib/types/fleet';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
+  import { emitMaintenanceJobDelta } from '$lib/sync/emitMaintenance';
+  import { refreshSyncSnapshot } from '$lib/stores/syncRuntime';
 
   const priorityOptions: { value: JobPriority; label: string }[] = [
     { value: 'low', label: 'Low' },
@@ -41,32 +44,29 @@
   const fleet = $derived($fleetDataStore);
 
   function saveJob() {
-    if (!form.vehicleId.trim()) {
-      alert('Select a vehicle.');
-      return;
-    }
-    if (!form.title.trim()) {
-      alert('Title is required.');
-      return;
-    }
-    const now = new Date().toISOString().slice(0, 10);
-    const newJob: MaintenanceJob = {
-      id: 'mj-' + Math.random().toString(36).slice(2, 11),
+    const check = validateJobCreate({
       vehicleId: form.vehicleId,
-      title: form.title.trim(),
-      description: form.description.trim() || '',
+      title: form.title,
+      description: form.description
+    });
+    if (!check.ok) {
+      alert(check.message);
+      return;
+    }
+    const newJob = createMaintenanceJob({
+      vehicleId: form.vehicleId,
+      title: form.title,
+      description: form.description,
       priority: form.priority,
-      status: form.status,
-      createdAt: now,
-      updatedAt: now,
-      history: [{ date: now, note: 'Job created.', status: form.status }],
-      planned: form.planned,
       serviceType: form.serviceType === 'other' ? undefined : form.serviceType,
-      dueDate: form.dueDate.trim() || undefined,
-      component: form.component.trim() || undefined
-    };
+      planned: form.planned,
+      dueDate: form.dueDate,
+      component: form.component
+    });
     const updatedJobs = [...fleet.jobs, newJob];
     saveFleetData({ ...fleet, jobs: updatedJobs });
+    emitMaintenanceJobDelta(null, newJob);
+    refreshSyncSnapshot();
     onClose();
   }
 </script>

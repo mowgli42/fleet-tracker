@@ -7,6 +7,8 @@
     MaintenanceJobHistoryEntry
   } from '$lib/types/fleet';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
+  import { emitMaintenanceJobDelta } from '$lib/sync/emitMaintenance';
+  import { refreshSyncSnapshot } from '$lib/stores/syncRuntime';
   import SlideToRemove from '$lib/components/SlideToRemove.svelte';
 
   const priorityOptions: { value: JobPriority; label: string }[] = [
@@ -126,6 +128,8 @@
 
     const updatedJobs = fleet.jobs.map((j) => (j.id === job.id ? updated : j));
     saveFleetData({ ...fleet, jobs: updatedJobs });
+    emitMaintenanceJobDelta(job, updated);
+    refreshSyncSnapshot();
     onClose();
   }
 </script>

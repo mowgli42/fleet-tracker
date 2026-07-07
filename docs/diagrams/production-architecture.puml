@@ -1,0 +1,45 @@
+@startuml production-topology
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam shadowing false
+title Production topology: site boundary vs cloud (fleet-tracker target)
+
+package "Site (shop LAN / edge)" as SITE {
+  component "shop-ui\n(static + PWA)" as UI
+  component "site-api\n(optional)\nlocal commands" as SAPI
+  component "sync-worker\n(outbox flush)" as SW
+  database "local-db\n(event log, outbox,\n fleet cache)" as LDB
+  UI -down-> SAPI : HTTPS\n(same origin or LAN)
+  SAPI -down-> LDB : read/write\nlocal state
+  SW -up-> LDB : poll / lease\noutbox
+}
+
+package "Cloud" as CLOUD {
+  component "sync-ingress\n(API gateway + validate)" as ING
+  database "event-store\n(append + idempotency)" as EVT
+  component "projector\n(stream consumer)" as PRJ
+  database "read-model store\n(owner views)" as RM
+  component "owner-api\n(readiness, sites)" as OAPI
+  component "owner-ui\n(static)" as OUI
+  ING -right-> EVT : accepted\nevents
+  PRJ -left-> EVT : ordered\nreplay
+  PRJ -down-> RM : upsert\nprojections
+  OAPI -up-> RM : queries
+  OUI -right-> OAPI : HTTPS
+}
+
+SW -down-> ING : POST /sync/events\n(batched, TLS,\n site credential)
+LDB .. UI : offline-capable\n(read/write\nqueued if cloud down)
+
+note right of SW
+  Worker retries with
+  backoff; never drops
+  accepted local events.
+end note
+
+note bottom of PRJ
+  Deterministic ordering:
+  docs/SYNC-ORDERING-LADDER.md
+end note
+
+@enduml

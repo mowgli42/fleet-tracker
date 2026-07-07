@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { jobAfterPartsReceived } from '$lib/parts/partsInventoryRules';
   import type { PartOrder, PartOrderStatus } from '$lib/types/fleet';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
   import SlideToRemove from '$lib/components/SlideToRemove.svelte';
@@ -47,7 +48,17 @@
           : parseInt(String(form.quantityUsed), 10) || undefined
     };
     const updatedParts = fleet.parts.map((p) => (p.id === part.id ? updated : p));
-    saveFleetData({ ...fleet, parts: updatedParts });
+    let jobs = fleet.jobs;
+    if (updated.maintenanceJobId) {
+      const job = fleet.jobs.find((j) => j.id === updated.maintenanceJobId);
+      if (job) {
+        const next = jobAfterPartsReceived(job, updatedParts, now);
+        if (next) {
+          jobs = fleet.jobs.map((j) => (j.id === next.id ? next : j));
+        }
+      }
+    }
+    saveFleetData({ ...fleet, parts: updatedParts, jobs });
     onClose();
   }
 </script>

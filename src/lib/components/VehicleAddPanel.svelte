@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { Vehicle, VehicleStatus, VehicleRole } from '$lib/types/fleet';
+  import type { VehicleStatus, VehicleRole } from '$lib/types/fleet';
   import { fleetDataStore, saveFleetData } from '$lib/stores/fleetData';
+  import { registerVehicle } from '$lib/vehicle/vehicleRules';
 
   const statusOptions: { value: VehicleStatus; label: string }[] = [
     { value: 'ready', label: 'Ready' },
@@ -39,23 +40,22 @@
 
   function saveVehicle() {
     const id = form.id.trim() || generateId();
-    if (fleet.vehicles.some((v) => v.id === id)) {
-      alert('A vehicle with this ID already exists.');
+    const result = registerVehicle(
+      fleet.vehicles,
+      {
+        name: form.name,
+        status: form.status,
+        role: form.role,
+        odometer: parseInt(String(form.odometer), 10) || undefined,
+        vin: form.vin.trim() || undefined
+      },
+      id
+    );
+    if (!result.ok) {
+      alert(result.message);
       return;
     }
-    if (!form.name.trim()) {
-      alert('Name is required.');
-      return;
-    }
-    const newVehicle: Vehicle = {
-      id,
-      name: form.name.trim(),
-      status: form.status,
-      role: form.role,
-      odometer: parseInt(String(form.odometer), 10) || undefined,
-      vin: form.vin.trim() || undefined
-    };
-    saveFleetData({ ...fleet, vehicles: [...fleet.vehicles, newVehicle] });
+    saveFleetData({ ...fleet, vehicles: [...fleet.vehicles, result.vehicle] });
     onClose();
   }
 </script>
