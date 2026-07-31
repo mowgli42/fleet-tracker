@@ -16,7 +16,7 @@ import {
   type FlushBackoffState
 } from '../../src/lib/sync/flushBackoff.ts';
 import { loadLocalEvents } from '../../src/lib/sync/localEventLog.ts';
-import { enqueueOutbox, loadOutbox } from '../../src/lib/sync/outbox.ts';
+import { loadOutbox } from '../../src/lib/sync/outbox.ts';
 import { sortEventsForReplay } from '../../src/lib/sync/sortEvents.ts';
 import { appendAndQueueEvent, flushOutboxToLocalCloud } from '../../src/lib/sync/syncPipeline.ts';
 import { validateEventEnvelope, type ValidateResult } from '../../src/lib/sync/validateEvent.ts';
