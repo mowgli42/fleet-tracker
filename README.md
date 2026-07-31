@@ -2,7 +2,7 @@
 
 A mockup car fleet management webtool built with SvelteKit and JSON. Tracks vehicle status, open maintenance jobs (with priority and history), and parts on order.
 
-**v2.0** — Redesigned with the frontend-design skill: industrial/utilitarian aesthetic, Sora + DM Sans typography, cohesive palette (teal accent, CSS variables), compact top-anchored layout, staggered reveals, and refined accessibility (focus states, semantics).
+**Today:** static SvelteKit UI seeded from JSON under `src/lib/data/`, with optional Vercel demo mode (`localStorage` + daily reset) and Phase 1 offline-sync demo pieces (`src/lib/sync/`, optional `npm run demo:sync-server`).
 
 ## Screenshots
 
@@ -20,6 +20,78 @@ A mockup car fleet management webtool built with SvelteKit and JSON. Tracks vehi
 - **Parts** — **Order part** to add; edit (pencil) and remove (slide in edit panel only); link to maintenance jobs.
 
 See **[docs/JOB-WORKFLOW.md](docs/JOB-WORKFLOW.md)** for a step-by-step guide and screenshots that explain the job workflow.
+
+## Architecture
+
+Target topology: operators use a **site** browser/PWA with local durable state and a sync worker; **cloud** hosts ingress, event store, projector, and owner-facing APIs. Full PlantUML, container/API status tables, and notes live in **[docs/PRODUCTION-ARCHITECTURE.md](docs/PRODUCTION-ARCHITECTURE.md)** ([diagram source](docs/diagrams/production-architecture.puml)).
+
+```mermaid
+flowchart TB
+  subgraph Site["Site (shop LAN / edge)"]
+    UI["shop-ui\n(static + PWA)"]
+    SAPI["site-api (optional)\nlocal commands"]
+    SW["sync-worker\n(outbox flush)"]
+    LDB[("local-db\nevent log, outbox,\nfleet cache")]
+    UI --> SAPI
+    SAPI --> LDB
+    SW --> LDB
+    UI -.->|offline-capable| LDB
+  end
+
+  subgraph Cloud["Cloud"]
+    ING["sync-ingress\n(API gateway + validate)"]
+    EVT[("event-store\nappend + idempotency")]
+    PRJ["projector\n(stream consumer)"]
+    RM[("read-model store\nowner views")]
+    OAPI["owner-api\n(readiness, sites)"]
+    OUI["owner-ui\n(static)"]
+    ING --> EVT
+    PRJ --> EVT
+    PRJ --> RM
+    OAPI --> RM
+    OUI --> OAPI
+  end
+
+  SW -->|POST /sync/events\nbatched, TLS, site credential| ING
+```
+
+## Sequence
+
+Primary sync flow (happy path): a technician saves a maintenance change locally; the sync worker flushes the outbox to cloud ingress; the projector updates owner read models. Outage/reconnect and owner-read sequences are in the architecture doc.
+
+```mermaid
+sequenceDiagram
+  actor Technician
+  participant UI as Shop UI
+  participant Local as Local store
+  participant Worker as Sync worker
+  participant Ingress as Sync ingress
+  participant Events as Event store
+  participant Projector
+  participant ReadModel as Read model
+
+  Technician->>UI: Save maintenance (blocking change)
+  UI->>Local: append local event + enqueue outbox
+  UI->>Technician: show local readiness
+
+  loop flush interval / online
+    Worker->>Local: claim outbox batch
+    Worker->>Ingress: POST /api/sync/events
+    Ingress->>Events: persist if idempotent
+    Ingress->>Worker: 200 + accepted cursor
+    Worker->>Local: mark delivered / trim outbox
+  end
+
+  Events-->>Projector: new events
+  Projector->>ReadModel: upsert vehicle/site readiness
+```
+
+## Remaining / planned capabilities
+
+- Durable on-prem **local-db** (replace demo `localStorage`) and hardened **sync-worker** / **sync-ingress**
+- Separate **owner-ui** + **owner-api** readiness views; production event-store and projector
+- Security, backups/archives, VIN-scan phone apps, and public status-board URLs — see [docs/PROPOSAL-PRODUCTION-READINESS.md](docs/PROPOSAL-PRODUCTION-READINESS.md)
+- Phase 1 offline sync change: `openspec/changes/add-offline-sync-phase1/`
 
 ## Run locally
 
@@ -86,9 +158,7 @@ Phase 1 offline sync: **`openspec/changes/add-offline-sync-phase1/`**. Validate 
 
 This app is a mockup/prototype. Additional steps are required to make it production-ready: security requirements, database backup and archive of legacy jobs and sold vehicles, phone apps that scan VINs, and a user-facing status board with a unique URL for tracking an assigned car. See the separate proposal: [docs/PROPOSAL-PRODUCTION-READINESS.md](docs/PROPOSAL-PRODUCTION-READINESS.md).
 
-### Target architecture (local site + cloud)
-
-Operations are meant to run as a **local-first site** (browser/PWA + durable on-prem log/outbox + sync worker) talking to **cloud** services (sync ingress, event store, projector, owner read API). Phase 1 demo pieces live in this repo (`src/lib/sync/`, optional `npm run demo:sync-server`). A **PlantUML** topology and full **container/API status** tables, plus **sequence diagrams** for happy path, outage/reconnect, and owner reads, are in **[docs/PRODUCTION-ARCHITECTURE.md](docs/PRODUCTION-ARCHITECTURE.md)**. The same diagram source is in [docs/diagrams/production-architecture.puml](docs/diagrams/production-architecture.puml) for local rendering.
+Deep architecture (PlantUML topology, container/API inventory, outage and owner-read sequences) remains in **[docs/PRODUCTION-ARCHITECTURE.md](docs/PRODUCTION-ARCHITECTURE.md)**.
 
 ## Regenerating screenshots
 
