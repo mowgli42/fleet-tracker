@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:gherkin": "NODE_OPTIONS='--import tsx' cucumber-js --config cucumber.mjs",
-    "demo:sync-server": "tsx scripts/demo-sync-server.ts"
+    "demo:sync-server": "tsx scripts/demo-sync-server.ts",
+    "prepare": "svelte-kit sync"
   },
   "devDependencies": {
     "@cucumber/cucumber": "^13.0.0",
