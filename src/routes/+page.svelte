@@ -170,7 +170,7 @@
       <h2 class="text-xs font-medium uppercase tracking-wider text-muted">Ready to deploy</h2>
       <p class="mt-1 text-2xl font-display font-semibold">{dashboardData.summary.vehiclesByStatus['ready'] ?? 0}</p>
       <p class="mt-1 text-xs text-muted">vehicles available</p>
-      <a href="/fleet?status=ready" class="mt-3 text-sm link-accent">View ready →</a>
+      <a href="/schedule" class="mt-3 text-sm link-accent">View 72h schedule →</a>
     </div>
   </section>
 
