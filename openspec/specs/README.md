@@ -11,6 +11,7 @@ Specs are informed by fleet maintenance best practices:
 - **Centralized asset history** — per-vehicle audit trail (`vehicle-history`)
 - **Parts linkage** — work orders gate on parts availability (`parts-inventory`)
 - **Operational availability** — owner-ready / at-risk / blocked under outage (`fleet-availability`, `offline-sync`)
+- **Short-horizon shop board** — site-grouped 24/48/72h status bars for next job vs deferrable PM (`fleet-schedule`)
 - **Inspections at intake** — shop-floor checklist before work (`tablet-shop-floor`); full DVIR deferred to `inspections-compliance` (Phase 3)
 
 ## Capability index
@@ -23,6 +24,7 @@ Specs are informed by fleet maintenance best practices:
 | [maintenance-job](maintenance-job/spec.md) | 1 | `/maintenance` | `features/maintenance-job.feature` |
 | [parts-inventory](parts-inventory/spec.md) | 1 | `/parts` | `features/parts-inventory.feature` |
 | [pm-scheduling](pm-scheduling/spec.md) | 1–2 | domain + dashboard | `features/pm-scheduling.feature` |
+| [fleet-schedule](fleet-schedule/spec.md) | 1 | `/schedule` | `features/fleet-schedule.feature` |
 | [obd2-diagnostics](obd2-diagnostics/spec.md) | 1 | maintenance + tablet intake | `features/obd2-diagnostics.feature` |
 | [dashboard-analytics](dashboard-analytics/spec.md) | 1 | `/` | `features/dashboard-analytics.feature` |
 | [offline-sync](offline-sync/spec.md) | 1 | `src/lib/sync/` | `features/offline-sync.feature` |

@@ -16,6 +16,7 @@
   const navItems = [
     { href: '/', label: 'Dashboard' },
     { href: '/fleet', label: 'Fleet' },
+    { href: '/schedule', label: 'Schedule' },
     { href: '/maintenance', label: 'Maintenance' },
     { href: '/parts', label: 'Parts' },
     { href: '/sync', label: 'Sync' },
