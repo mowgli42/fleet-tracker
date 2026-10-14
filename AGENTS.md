@@ -1,44 +1,60 @@
-## Learned User Preferences
+# fleet-tracker
 
-- When README or docs show UI screenshots, keep image paths consistent with where files are committed (e.g. `docs/` vs `screenshots/`) and regenerate screenshots after substantive UI changes.
+Mockup car fleet management webtool (SvelteKit + JSON seed). Tracks vehicle status, open maintenance jobs, and parts on order. Static site with optional Vercel demo mode (localStorage + daily reset).
+Stack: SvelteKit (Svelte 5) + TypeScript + Tailwind + adapter-static. Data: JSON under `src/lib/data/`.
+Posture: ponytail (repo >30 days).
+Shared health pack lives in `.cursor/skills/` and `.cursor/rules/` — follow those for [Health] work.
 
-## OpenSpec + Gherkin + Beads workflow
+## Commands
 
-**Full workflow:** `openspec/WORKFLOW.md`
+- Dev: `npm install && npm run dev` (http://localhost:5173)
+- Test: `npm test` (Vitest) and `npm run test:gherkin`
+- Build / preview: `npm run build && npm run preview`
+- Demo mode: `VITE_DEMO_MODE=true npm run build && VITE_DEMO_MODE=true npm run preview`
+- Screenshots: `npm run build && node scripts/screenshots.mjs` (after UI changes; commit under `docs/`)
+- Secrets: `bash scripts/scan-secrets.sh .`
+- Beads: `bd ready` / `bd prime`
 
-This project uses [OpenSpec](https://github.com/Fission-AI/OpenSpec) with Gherkin verification and [Beads](https://github.com/steveyegge/beads) for task tracking.
+## Hard prohibitions
 
-**Before implementing features:**
-- Read `openspec/WORKFLOW.md` and relevant `openspec/specs/<capability>/spec.md`
-- Run `bd ready` and announce the issue you are taking
-- Treat `#### Scenario:` blocks as the behavioral contract; mirror them in `features/*.feature`
+- Do not commit private keys, `*-key.pem`, `*.key`, `.env` secrets, or `BEGIN … PRIVATE KEY` blobs. Generate credentials locally; gitignore them. Public certs may stay.
+- Do not treat the static JSON mockup as production data store. Do this instead: keep seed in `src/lib/data/` and track durable local-db / sync as remaining work in OpenSpec + Beads.
+- Do not invent routes, env vars (`VITE_*`), or API endpoints not present in the tree or `vercel.json`.
+- Do not rewrite OpenSpec / Gherkin / Beads to match hoped-for future. Update them only when code already changed. Active change: `openspec/changes/add-offline-sync-phase1/`.
 
-**Workflow:** spec → Beads issues → implement → `npm test` + `npm run test:gherkin` → `/opsx:archive`
+## Verify by change type
 
-**Living specs:** `openspec/specs/vehicle/spec.md`  
-**Active change (sync):** `add-offline-sync-phase1`
+| Change | Check |
+| --- | --- |
+| UI / Svelte | `npm run dev` then navigate dashboard `/`, fleet `/fleet`, maintenance `/maintenance`, parts `/parts` |
+| Spec | matching `features/*.feature` + OpenSpec capability still true; `npm run test:gherkin` |
+| Deploy | production deploy READY; primary flow (dashboard summary cards) loads |
+| Secrets / TLS | `bash scripts/scan-secrets.sh .` passes |
+| Screenshots | regenerate via `scripts/screenshots.mjs` and confirm paths in README |
 
-## Learned Workspace Facts
+## Source of truth
 
-- fleet-tracker is SvelteKit (Svelte 5) with TypeScript, Tailwind CSS, and `@sveltejs/adapter-static` for a prerendered static site (`npm run build`).
-- Fleet domain types live in `src/lib/types/fleet.ts`; seed data is JSON under `src/lib/data/` (vehicles, maintenance jobs, parts orders).
-- Primary routes include dashboard (`/`), fleet (`/fleet`), maintenance (`/maintenance`), and parts (`/parts`) with shared app shell navigation.
-- README screenshots are captured with Playwright via `scripts/screenshots.mjs` after a build; against `npm run preview`, navigate from `/` using in-app links so CSS loads on subroutes (loading `/fleet` directly can break relative `./_app` assets).
-- Tests run with Vitest (`npm run test`).
+- Behavior: OpenSpec (`openspec/specs/vehicle/spec.md`) + `features/*.feature`
+- Remaining work: Beads (`.beads/`) + GitHub issues
+- Demo evidence: README screenshots under `docs/`, `docs/JOB-WORKFLOW.md`
+- Health bar: do not duplicate `SUCCESS_CRITERIA.md` here
 
-## Issue Tracking
+## House vocabulary
 
-This project uses **bd (beads)** for issue tracking. Run `bd prime` for workflow context, or install hooks with `bd hooks install` for automatic context injection.
+- Vehicle status / readiness — dashboard metrics (fleet %, unplanned %, MTTR, PM compliance). Do not write "availability score" generically.
+- Maintenance job — open jobs with priority, status, due date, time in state; history expandable. Do not write "ticket" or "work order".
+- Parts on order — linked to jobs; status badges. Do not invent inventory levels beyond seed JSON.
+- Demo mode — `VITE_DEMO_MODE=true` + localStorage daily reset. Do not assume shared server state.
+- Offline sync Phase 1 — outbox / sync-worker / ingress as specified in `openspec/changes/add-offline-sync-phase1/`.
 
-Quick reference:
+## Good / bad (from this repo)
 
-- `bd ready` - find unblocked work
-- `bd create "Title" --type task --priority 2` - create an issue
-- `bd close <id>` - close completed work
-- `bd dolt push` - push Beads data when using a shared Beads remote
+Bad: loading `/fleet` directly in preview (breaks relative `./_app` assets).
+Good: navigate from `/` using in-app links so CSS loads; regenerate screenshots after UI changes.
 
-For full workflow details, run `bd prime`.
+## Borrowed patterns
 
-## Secrets
-
-Do not commit private keys, *-key.pem, *.key, .env secrets, or BEGIN … PRIVATE KEY. Generate locally; gitignore keys.
+- hard-prohibition from anomalyco/opencode via ossrules.md — fits secrets and no-aspirational-spec rules
+- verification-matrix from anomalyco/opentui via ossrules.md — fits change-type checks for UI/spec/deploy
+- single-source from various via ossrules.md — points at OpenSpec/Gherkin/Beads instead of duplicating
+- house-vocabulary from portfolio pattern — fleet/maintenance/parts terms specific to this mockup
